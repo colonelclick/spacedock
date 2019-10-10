@@ -10,6 +10,8 @@ public class Resource extends ResourceBase {
     public static final String kFleetCaptainExternalId = "fleet_captain_collectiveop2";
     public static final String kHidekiExternalId = "hideki_class_attack_squadron_op5participation";
     public static final String kFedFighterExternalId = "federation_attack_fighters_op6participation";
+    public static final String kOfficersExternalId = "officer_cards_collectiveop3";
+    public static final String kOfficerExchangeProgramId = "officer_exchange_program_71996a";
 
     static class ResourceComparator implements Comparator<Resource> {
         @Override
@@ -48,6 +50,10 @@ public class Resource extends ResourceBase {
 
     public boolean isFleetCaptain() { return mExternalId.equals(kFleetCaptainExternalId);}
 
+    public boolean isOfficers() { return mExternalId.equals(kOfficersExternalId);}
+
+    public boolean isOfficerExchangeProgram() { return mExternalId.equals(kOfficerExchangeProgramId);}
+
     public boolean getIsFighterSquadron() {
         return mExternalId.equals(kHidekiExternalId) || mExternalId.equals(kFedFighterExternalId);
     }
@@ -68,6 +74,35 @@ public class Resource extends ResourceBase {
         return associated;
     }
 
+    public int getCostForSquad(Squad squad) {
+        float cost = 0;
+        if (getExternalId().equals("emergency_force_fields_72001r")) {
+            int shield = 0;
+            for (EquippedShip ship : squad.getEquippedShips()) {
+                shield += ship.getShield();
+            }
+            cost = (float)shield/2.0f;
+            return (int)Math.ceil(cost);
+        } else if (getExternalId().equals("main_power_grid_72005r")) {
+            int hull = 0;
+            for (EquippedShip ship : squad.getEquippedShips()) {
+                if (ship.getHull() > 3) {
+                    hull++;
+                }
+            }
+            cost = 3.0f + ((float) hull * 2.0f);
+            return (int) cost;
+        } else if (getExternalId().equals("improved_hull_72319r")) {
+            int hull = 0;
+            for (EquippedShip ship : squad.getEquippedShips()) {
+                hull += ship.getHull();
+            }
+            cost = (float)hull/2.0f;
+            return (int)Math.ceil(cost);
+        } else {
+            return getCost();
+        }
+    }
     /**
      * Returns true if the Resource is built into Squad as either a ship, or an upgrade
      * (TODO: better name)
@@ -77,6 +112,6 @@ public class Resource extends ResourceBase {
     public boolean equippedIntoSquad(Squad squad) {
 
         return getIsFlagship() || isFleetCaptain() || getIsSideboard()
-                || getIsFighterSquadron();
+                || getIsFighterSquadron() || isOfficers() || isOfficerExchangeProgram();
     }
 }

@@ -38,11 +38,11 @@ public class DataLoader extends DefaultHandler {
     ArrayList<Object> elementStack = new ArrayList<Object>();
     HashSet<String> listElementNames = new HashSet<String>();
     HashSet<String> itemElementNames = new HashSet<String>();
-    String currentVersion;
-    String dataVersion;
-    boolean versionMatched;
-    boolean versionOnly;
-    boolean force;
+    public String currentVersion;
+    public String dataVersion;
+    public boolean versionMatched;
+    public boolean versionOnly;
+    public boolean force;
 
     public DataLoader(Universe targetUniverse, InputStream xmlTargetInput) {
         universe = targetUniverse;
@@ -87,6 +87,10 @@ public class DataLoader extends DefaultHandler {
         xr.setContentHandler(this);
 
         xr.parse(new InputSource(xmlInput));
+
+        if (versionOnly) {
+            return true;
+        }
 
         loadSets();
 
@@ -457,7 +461,59 @@ public class DataLoader extends DefaultHandler {
                 "RomulanHijackers",
                 "limited_max_weapon_3",
                 "ony_federation_ship_limited3",
-                "ony_mu_ship_limited"
+                "ony_mu_ship_limited",
+                "KTemoc",
+                "Plus3NotKlingonAndNoMoreThanOnePerShip",
+                "Plus2NotRomulanAndNoMoreThanOnePerShip",
+                "OnlyFederationCaptainShip",
+                "OnlyIntrepidAndNoMoreThanOnePerShip",
+                "Add2HiddenCrew5",
+                "OnlyGrandNagusTalent",
+                "AddTwoWeaponSlotsAndNoMoreThanOnePerShip",
+                "Hull4NoRearPlus5NonFed",
+                "no_faction_penalty_on_vulcan",
+                "limited_max_weapon_3AndPlus5NonFed",
+                "Plus5NotDominionAndNoMoreThanOnePerShip",
+                "Plus5NotKlingon",
+                "Plus5NotXindi",
+                "OnlyTalShiarTalent",
+                "OnlyRomulanCaptain",
+                "OnlyBajoranFederation",
+                "OnlyKazonCaptainShip",
+                "Plus4NotVulcan",
+                "Plus3NotFederationNoMoreThanOnePerShip",
+                "Plus5NotFederationNoMoreThanOnePerShip",
+                "costincreasedifnotromulansciencevesselAndNoMoreThanOnePerShip",
+                "OnlySecretResearchTalent",
+                "KlingonUpgradesCostOneLess",
+                "OnlyXindi",
+                "Add3FedTech4Less",
+                "TechUpgradesCostOneLess",
+                "Plus5NotKazonNoMoreThanOnePerShip",
+                "NoPenaltyOnTalent",
+                "OneRomulanTalentDiscIfFleetHasRomulan",
+                "OnlyBajoranCaptainShip",
+                "TwoBajoranTalents",
+                "AddOneTechMinus1",
+                "MustHaveBS",
+                "OPSPlusFiveNotRomulan",
+                "PlusFiveNotKlingonAndMustHaveComeAbout",
+                "RemanBodyguardsLess2",
+                "OnlyKlingonTalent",
+                "BSVT",
+                "OnlyBorgQueen",
+                "addoneweaponslotfortorpedoes",
+                "FedCrewUpgradesCostOneLess",
+                "KuvahMagh2Less",
+                "OPSPlus5NotXindi",
+                "OPSPlus4NotXindi",
+                "OnlyFedShipHV4CostPWV",
+                "OnlyKlingonORRomulanCaptainShip",
+                "OnlyLBCaptain",
+                "OnlyXindiANDCostPWV",
+                "OnlyXindiCaptainShip",
+                "Ship2LessAndUpgrades1Less",
+                "addoneweaponslot1xindi2less"
         };
 
         TreeSet<String> unhandledSpecials = new TreeSet<String>(allSpecials);
@@ -472,6 +528,10 @@ public class DataLoader extends DefaultHandler {
                 wildcardSpecials.add(unhandledSpecial);
             } else if (unhandledSpecial.startsWith("Plus3NotShip_")) {
                 wildcardSpecials.add(unhandledSpecial);
+            } else if (unhandledSpecial.startsWith("Plus4NotShipClass_")) {
+                wildcardSpecials.add(unhandledSpecial);
+            } else if (unhandledSpecial.startsWith("Plus4NotShip_")) {
+                wildcardSpecials.add(unhandledSpecial);
             } else if (unhandledSpecial.startsWith("Plus5NotShipClass_")) {
                 wildcardSpecials.add(unhandledSpecial);
             } else if (unhandledSpecial.startsWith("Plus5NotShip_")) {
@@ -484,7 +544,13 @@ public class DataLoader extends DefaultHandler {
                 wildcardSpecials.add(unhandledSpecial);
             } else if (unhandledSpecial.startsWith("NoMoreThanOnePerShip")) {
                 wildcardSpecials.add(unhandledSpecial);
-            }
+            } else if (unhandledSpecial.startsWith("OPSOnlyShipClass_")) {
+                wildcardSpecials.add(unhandledSpecial);
+            } else if (unhandledSpecial.startsWith("OPSPlus5NotShipClass_")) {
+                wildcardSpecials.add(unhandledSpecial);
+            } else if (unhandledSpecial.startsWith("OPSPlus3NotShipClass_")) {
+            wildcardSpecials.add(unhandledSpecial);
+        }
         }
         if (wildcardSpecials.size() > 0) {
             unhandledSpecials.removeAll(wildcardSpecials);
@@ -498,13 +564,13 @@ public class DataLoader extends DefaultHandler {
     }
 
     interface ItemCreator {
-        public SetItem create(String type);
+        SetItem create(String type);
 
-        public SetItem get(String externalId);
+        SetItem get(String externalId);
 
-        public void put(String externalId, SetItem s);
+        void put(String externalId, SetItem s);
 
-        public void afterUpdate(SetItem s);
+        void afterUpdate(SetItem s);
     }
 
     @SuppressWarnings("unchecked")
@@ -689,6 +755,6 @@ public class DataLoader extends DefaultHandler {
 
     private void abortParsing() {
         // TODO abort parsing
-        throw new RuntimeException("version only stop parsing");
+        //throw new RuntimeException("version only stop parsing");
     }
 }

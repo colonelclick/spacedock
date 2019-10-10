@@ -149,7 +149,75 @@
         }
         [context deleteObject:crew3of5old];
     }
+
+    DockUpgrade* resourceUpgrade = [DockUpgrade upgradeForId:@"captains_chair_c_72936r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
+    resourceUpgrade = [DockUpgrade upgradeForId:@"captains_chair_t_72936r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
+    resourceUpgrade = [DockUpgrade upgradeForId:@"captains_chair_w_72936r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
+    resourceUpgrade = [DockUpgrade upgradeForId:@"line_retrofit_c_72941r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
+    resourceUpgrade = [DockUpgrade upgradeForId:@"line_retrofit_t_72941r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
+    resourceUpgrade = [DockUpgrade upgradeForId:@"line_retrofit_w_72941r" context:_managedObjectContext];
+    if (resourceUpgrade != nil)
+    {
+        NSArray* allSquads = [DockSquad allSquads: _managedObjectContext];
+        for (DockSquad* s in allSquads) {
+            [s purgeUpgrade: resourceUpgrade];
+        }
+        [_managedObjectContext deleteObject: resourceUpgrade];
+        NSError* error;
+        [self loadData:&error];
+    }
     
+    [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"Plus5NotDominionAndNoMoreThanOnePerShip" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"high_energy_subspace_field_72221c" context:context]];
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"3119" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"3012" context:context]];
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"3052" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"3011" context:context]];
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"photon_torpedoes_71448" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"3045" context:context]];
@@ -167,6 +235,8 @@
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"photon_torpedoes_71523" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"photon_torpedoes_u_s_s_yaeger" context:context]];
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"photon_torpedoes_71808" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"photon_torpedoes_71528" context:context]];
     [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"mirror_universe_71535" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"mirror_universe_captain_71510b" context:context]];
+    [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"em_pulse_71806" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"3061" context:context]];
+    [self mergeGenericUpgrade:[DockUpgrade upgradeForId:@"missile_launchers_71806" context:context] intoUpgrade:[DockUpgrade upgradeForId:@"3063" context:context]];
     [self mergeGenericShip:[DockShip shipForId: @"1026" context:context] intoShip:[DockShip shipForId: @"1025" context:context]];
     [self mergeGenericShip:[DockShip shipForId: @"ferengi_starship_71646a" context:context] intoShip:[DockShip shipForId: @"1024" context:context]];
     [self mergeGenericShip:[DockShip shipForId: @"vulcan_starship_71527" context:context] intoShip:[DockShip shipForId: @"vulcan_starship_71508" context:context]];

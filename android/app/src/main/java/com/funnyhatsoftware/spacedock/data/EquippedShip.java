@@ -31,11 +31,20 @@ public class EquippedShip extends EquippedShipBase {
     public EquippedShip(Ship inShip) {
         super();
         mShip = inShip;
+
+        if (inShip.getExternalId().equals("enterprise_nx_01_71526")) {
+            Upgrade hullPlating = Universe.getUniverse().getUpgrade("enhanced_hull_plating_71526");
+            if (containsUpgrade(Universe.getUniverse().getUpgrade("enhanced_hull_plating_71526")) == null) {
+                addUpgrade(hullPlating, null, false);
+            }
+        }
     }
 
     public boolean isResourceSideboard() {
-        return false;
+        return (mShip == null);
     }
+
+    public boolean isShuttle() { return mShip.isShuttle(); }
 
     public String getShipExternalId() {
         if (mShip == null) {
@@ -131,6 +140,13 @@ public class EquippedShip extends EquippedShipBase {
 
         for (EquippedUpgrade eu : mUpgrades) {
             cost += eu.calculateCost();
+        }
+
+        if (getCaptain().getSpecial().equals("Ship2LessAndUpgrades1Less")) {
+            cost -= 2;
+            if (cost < 0) {
+                cost = 0;
+            }
         }
 
         if (getFlagship() != null) {
@@ -287,6 +303,9 @@ public class EquippedShip extends EquippedShipBase {
             Upgrade upgrade = eu.getUpgrade();
             if (upgrade != null) {
                 v += upgrade.additionalTechSlots();
+                if (upgrade.getExternalId().equals("enhanced_hull_plating_71526") && getExternalId().equals("enterprise_nx_01_71526")) {
+                    v += 1;
+                }
             }
         }
 
@@ -316,16 +335,28 @@ public class EquippedShip extends EquippedShipBase {
         } else {
             v = 1;
         }
+        if (getCaptain() != null && getCaptain().getExternalId().equals("gareb_71536")) {
+            v ++;
+        }
         return v;
     }
 
     public int getAdmiralLimit() {
-        return getCaptainLimit();
+        int v = 0;
+        v = getCaptainLimit();
+        if (v > 1) {
+            v = 1;
+        }
+        return v;
     }
 
     public int getOfficerLimit() {
         ArrayList<EquippedUpgrade> crewUpgrades = allUpgradesOfType(Constants.CREW_TYPE);
-        return 2 * crewUpgrades.size();
+        int max = 2 * crewUpgrades.size();
+        if (max > 4) {
+            max = 4;
+        }
+        return max;
     }
 
     public int getTalent() {
@@ -339,6 +370,40 @@ public class EquippedShip extends EquippedShipBase {
         Flagship flagship = getFlagship();
         if (flagship != null) {
             v += flagship.getTalent();
+        }
+        if (getCaptain() != null && getCaptain().getExternalId().equals("brunt_72013")){
+            v += 1;
+        }
+        if (getCaptain() != null && getCaptain().getExternalId().equals("lovok_72221a")){
+            v += 1;
+        }
+        if (getCaptain() != null && getCaptain().getExternalId().equals("telek_r_mor_72016")){
+            v += 1;
+        }
+        if (getCaptain() != null && getCaptain().isKazon() && getShip().isKazon()) {
+            v += 1;
+        }
+        if (getCaptain() != null && getCaptain().getSpecial().equals("TwoBajoranTalents")) {
+            v += 2;
+        }
+        if (getCaptain() != null && getCaptain().getSpecial().equals("OneRomulanTalentDiscIfFleetHasRomulan")) {
+            if (mSquad != null) {
+                ArrayList<EquippedShip> ships = mSquad.getEquippedShips();
+                boolean rom = false;
+                for (EquippedShip ship : ships) {
+                    if (ship != this) {
+                        if (ship.getShip().isRomulan()) {
+                            rom = true;
+                        }
+                    }
+                }
+                if (rom) {
+                    v += 1;
+                }
+            }
+        }
+        if (getCaptain() != null && getCaptain().getExternalId().equals("kurn_71999p")) {
+            v += 1;
         }
         return v;
     }
@@ -379,6 +444,15 @@ public class EquippedShip extends EquippedShipBase {
             Upgrade upgrade = eu.getUpgrade();
             if (upgrade != null) {
                 v += upgrade.additionalCrewSlots();
+            }
+        }
+        if (getCaptain() != null && getCaptain().getSpecial().equals("RemanBodyguardsLess2")) {
+            if (v == 0) {
+                v++;
+            } else {
+                if (containsUpgradeWithName("Reman Bodyguards") != null) {
+                    v++;
+                }
             }
         }
         return v;
@@ -461,7 +535,16 @@ public class EquippedShip extends EquippedShipBase {
                     addUpgrade(zcc, null, false);
                 }
             }
-            establishPlaceholdersForType("Admiral", getCaptainLimit());
+            int current = equipped("Captain");
+            if (current > getCaptainLimit()) {
+                removeOverLimit("Captain",current,getCaptainLimit());
+            } else {
+                for (int i=current; i < getCaptainLimit(); i++) {
+                    Upgrade zcc = Captain.zeroCostCaptainForShip(getShip());
+                    addUpgrade(zcc, null, false);
+                }
+            }
+            establishPlaceholdersForType("Admiral", getAdmiralLimit());
         }
         establishPlaceholdersForType("Talent", getTalent());
         establishPlaceholdersForType("Crew", getCrew());
@@ -469,6 +552,7 @@ public class EquippedShip extends EquippedShipBase {
         establishPlaceholdersForType("Tech", getTech());
         establishPlaceholdersForType("Borg", getBorg());
         establishPlaceholdersForType("Squadron", getSquadron());
+        establishPlaceholdersForType("Officer", getOfficerLimit());
     }
 
     private void establishPlaceholdersForType(String upType, int limit) {
@@ -523,12 +607,51 @@ public class EquippedShip extends EquippedShipBase {
 
     public void removeIllegalUpgrades() {
         ArrayList<EquippedUpgrade> onesToRemove = new ArrayList<EquippedUpgrade>();
+
+        EquippedUpgrade captain = getEquippedCaptain();
+        int totalTE = 0;
+        if (captain != null) {
+            Explanation explanation = mSquad.canAddCaptain(getCaptain(),this);
+            if (!explanation.canAdd) {
+                String captainId = captain.getExternalId();
+                if (getShip().getShipClass().equals("Romulan Drone Ship")) {
+                    Captain gareb = Universe.getUniverse().getCaptain("gareb_71536");
+                    Explanation explanation1 = mSquad.canAddCaptain(gareb, this);
+                    if (explanation1.canAdd) {
+                        removeUpgrade(captain);
+                        addUpgrade((Upgrade) gareb);
+                        Explanation explanation2 = tryEquipUpgrade(mSquad, SLOT_TYPE_CAPTAIN, 1, captainId);
+                    } else {
+                        onesToRemove.add(captain);
+                    }
+                } else {
+                    onesToRemove.add(captain);
+                }
+            }
+            for(EquippedUpgrade eu : mUpgrades) {
+                if (!captain.getExternalId().equals("khan_singh_72317p") && !eu.isPlaceholder()) {
+                    if (eu.getSpecialTag() != null && eu.getSpecialTag().equals("KhanDiscounted")) {
+                        onesToRemove.add(eu);
+                    }
+                }
+                if (eu.getUpgrade().getExternalId().equals("triphasic_emitter_71536")) {
+                    totalTE++;
+                }
+            }
+        }
         for (EquippedUpgrade eu : getSortedUpgrades()) {
             Upgrade upgrade = eu.getUpgrade();
             if (upgrade != null) {
                 Explanation explanation = canAddUpgrade(upgrade, false);
                 if (!explanation.canAdd) {
                     onesToRemove.add(eu);
+                }
+                if (eu.getSpecialTag() != null && eu.getSpecialTag().equals("HiddenWeaponTE")) {
+                    if (totalTE > 0) {
+                        totalTE--;
+                    } else {
+                        onesToRemove.add(eu);
+                    }
                 }
             }
         }
@@ -646,6 +769,11 @@ public class EquippedShip extends EquippedShipBase {
                 return new Explanation(msg, "This upgrade can only be added to Federation ships.");
             }
         }
+        if ("dual_phaser_banks_72002p".equals(upgrade.getExternalId())) {
+            if (!ship.isFederation()) {
+                return new Explanation(msg, "This upgrade can only be added to Federation ships.");
+            }
+        }
         if ("OnlyRomulanShip".equals(upgradeSpecial)){
             if (!ship.isRomulan()) {
                 return new Explanation(msg, "This upgrade can only be added to Romulan ships.");
@@ -661,6 +789,11 @@ public class EquippedShip extends EquippedShipBase {
                 return new Explanation(msg, "This upgrade can only be purchased for a Jem'Hadar Battleship or Battle Cruiser.");
             }
         }
+        if ("limited_max_weapon_3AndPlus5NonFed".equals(upgradeSpecial)) {
+            if (ship.getAttack() > 3) {
+                return new Explanation(msg, "You may only deploy this upgrade to a ship with a Primary Weapon Value of 3 or less.");
+            }
+        }
         if ("combat_vessel_variant_71508".equals(upgradeSpecial)
                 || "only_suurok_class_limited_weapon_hull_plus_1".equals(upgradeSpecial)) {
             if (!ship.isSuurok()) {
@@ -673,13 +806,28 @@ public class EquippedShip extends EquippedShipBase {
         if (upgradeSpecial.startsWith("OnlyShipClass_")) {
             if (upgradeSpecial.startsWith("OnlyShipClass_CONTAINS_")) {
                 String reqMatch = upgradeSpecial.substring(23);
-                
+
                 if (!ship.getShipClass().contains(reqMatch)) {
                     return new Explanation(msg, "This upgrade can only be purchased for a " + reqMatch.replace("_", " ") + " Ship.");
                 }
             } else {
                 String reqClass = upgradeSpecial.substring(14);
-                
+
+                if (!reqClass.equals(ship.getShipClass().replace(" ", "_"))) {
+                    return new Explanation(msg, "This upgrade can only be purchased for a " + reqClass.replace("_", " ") + " Class Ship.");
+                }
+            }
+        }
+        if (upgradeSpecial.startsWith("OPSOnlyShipClass_")) {
+            if (upgradeSpecial.startsWith("OPSOnlyShipClass_CONTAINS_")) {
+                String reqMatch = upgradeSpecial.substring(26);
+
+                if (!ship.getShipClass().contains(reqMatch)) {
+                    return new Explanation(msg, "This upgrade can only be purchased for a " + reqMatch.replace("_", " ") + " Ship.");
+                }
+            } else {
+                String reqClass = upgradeSpecial.substring(17);
+
                 if (!reqClass.equals(ship.getShipClass().replace(" ", "_"))) {
                     return new Explanation(msg, "This upgrade can only be purchased for a " + reqClass.replace("_", " ") + " Class Ship.");
                 }
@@ -696,14 +844,72 @@ public class EquippedShip extends EquippedShipBase {
                 return new Explanation(msg, "This upgrade can only be added to a Bajoran ship.");
             }
         }
+        if ("OnlyBajoranShip".equals(upgradeSpecial)) {
+            if (!ship.isBajoran() || !getCaptain().isBajoran()) {
+                return new Explanation(msg, "This upgrade can only be added to a Bajoran Captain assigned to a Bajoran ship.");
+            }
+        }
+        if ("OnlyBajoranFederation".equals(upgradeSpecial)) {
+            if (!ship.isBajoran() && !ship.isFederation()) {
+                return new Explanation(msg, "This upgrade can only be added to a Bajoran or Federation ship.");
+            }
+        }
         if ("OnlyKlingon".equals(upgradeSpecial)) {
             if (!ship.isKlingon()) {
                 return new Explanation(msg, "This upgrade can only be added to a Klingon ship.");
             }
         }
-        if ("NoMoreThanOnePerShip".equals(upgradeSpecial) || "OnlyBorgShipAndNoMoreThanOnePerShip".equals(upgradeSpecial)) {
+        if ("NoMoreThanOnePerShip".equals(upgradeSpecial) || "OnlyBorgShipAndNoMoreThanOnePerShip".equals(upgradeSpecial) || upgradeSpecial.endsWith("NoMoreThanOnePerShip") || upgradeSpecial.startsWith("NoMoreThanOnePerShip") || upgradeSpecial.startsWith("OPSOnlyShipClass")  || upgradeSpecial.startsWith("OPSPlus")) {
             if (addingNew && null != containsUpgrade(upgrade)) {
                 return new Explanation(msg, "This upgrade can only be added once per ship.");
+            } else if (addingNew && (upgrade.getExternalId().equals("unremarkable_species_72018")
+                    || upgrade.getExternalId().equals("unremarkable_species_c_72018")
+                    || upgrade.getExternalId().equals("unremarkable_species_t_72018")
+                    || upgrade.getExternalId().equals("unremarkable_species_w_72018"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("unremarkable_species_72018"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("unremarkable_species_c_72018"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("unremarkable_species_t_72018"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("unremarkable_species_w_72018"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            } else if (addingNew && (upgrade.getExternalId().equals("maintenance_crew_c_72022")
+                    || upgrade.getExternalId().equals("maintenance_crew_t_72022")
+                    || upgrade.getExternalId().equals("maintenance_crew_w_72022"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("maintenance_crew_c_72022"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("maintenance_crew_t_72022"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("maintenance_crew_w_72022"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            } else if (addingNew && (upgrade.getExternalId().equals("auxiliary_control_room_t_72316p")
+                    || upgrade.getExternalId().equals("auxiliary_control_room_w_72316p"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("auxiliary_control_room_t_72316p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("auxiliary_control_room_w_72316p"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            } else if (addingNew && (upgrade.getExternalId().equals("automated_distress_beacon_c_72316p")
+                    || upgrade.getExternalId().equals("automated_distress_beacon_t_72316p")
+                    || upgrade.getExternalId().equals("automated_distress_beacon_w_72316p"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("automated_distress_beacon_c_72316p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("automated_distress_beacon_t_72316p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("automated_distress_beacon_w_72316p"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            } else if (addingNew && (upgrade.getExternalId().equals("computer_core_c_72336")
+                    || upgrade.getExternalId().equals("computer_core_w_72336"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("computer_core_c_72336"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("computer_core_w_72336"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            } else if (addingNew && (upgrade.getExternalId().equals("delta_shift_c_72320p")
+                    || upgrade.getExternalId().equals("delta_shift_t_72320p")
+                    || upgrade.getExternalId().equals("delta_shift_w_72320p")
+                    || upgrade.getExternalId().equals("delta_shift_e_72320p"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("delta_shift_c_72320p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("delta_shift_t_72320p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("delta_shift_w_72320p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("delta_shift_e_72320p"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
             }
         }
         if ("NoMoreThanOnePerShipBajoran".equals(upgradeSpecial)) {
@@ -712,6 +918,22 @@ public class EquippedShip extends EquippedShipBase {
             }
             if (!ship.isBajoran()) {
                 return new Explanation(msg, "This upgrade can only be added to a Bajoran ship.");
+            }
+        }
+        if ("NoMoreThanOnePerShipBajoranInterceptor".equals(upgradeSpecial)) {
+            if (addingNew && null != containsUpgrade(upgrade)) {
+                return new Explanation(msg, "This upgrade can only be added once per ship.");
+            }
+            if (!ship.getShipClass().equals("Bajoran Interceptor")) {
+                return new Explanation(msg, "This upgrade can only be added to a Bajoran Interceptor.");
+            }
+        }
+        if ("NoMoreThanOnePerShipBajoranScout".equals(upgradeSpecial)) {
+            if (addingNew && null != containsUpgrade(upgrade)) {
+                return new Explanation(msg, "This upgrade can only be added once per ship.");
+            }
+            if (!ship.getShipClass().equals("Bajoran Scout Ship")) {
+                return new Explanation(msg, "This upgrade can only be added to a Bajoran Scout Ship.");
             }
         }
         if ("NoMoreThanOnePerShipKlingon".equals(upgradeSpecial)) {
@@ -725,7 +947,16 @@ public class EquippedShip extends EquippedShipBase {
         if ("NoMoreThanOnePerShipFederation".equals(upgradeSpecial)) {
             if (addingNew && null != containsUpgrade(upgrade)) {
                 return new Explanation(msg, "This upgrade can only be added once per ship.");
+            } else if (addingNew && (upgrade.getExternalId().equals("systems_upgrade_71998p")
+                || upgrade.getExternalId().equals("systems_upgrade_c_71998p")
+                || upgrade.getExternalId().equals("systems_upgrade_w_71998p"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_71998p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_c_71998p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_w_71998p"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
             }
+
             if (!ship.isFederation()) {
                 return new Explanation(msg, "This upgrade can only be added to a Federation ship.");
             }
@@ -733,6 +964,14 @@ public class EquippedShip extends EquippedShipBase {
         if ("NoMoreThanOnePerShipFerengi".equals(upgradeSpecial)) {
             if (addingNew && null != containsUpgrade(upgrade)) {
                 return new Explanation(msg, "This upgrade can only be added once per ship.");
+            } else if (addingNew && (upgrade.getExternalId().equals("cargo_hold_20_72013")
+                    || upgrade.getExternalId().equals("cargo_hold_11_72013")
+                    || upgrade.getExternalId().equals("cargo_hold_02_72013"))) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("cargo_hold_20_72013"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("cargo_hold_11_72013"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("cargo_hold_02_72013"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
             }
             if (!ship.isFerengi()) {
                 return new Explanation(msg, "This upgrade can only be added to a Ferengi ship.");
@@ -789,6 +1028,14 @@ public class EquippedShip extends EquippedShipBase {
                 return new Explanation(msg, "This upgrade can only be added to ship with a hull of 4 or greater.");
             }
         }
+        if ("OnlyFedShipHV4CostPWV".equals(upgradeSpecial)) {
+            if (!ship.isFederation()) {
+                return new Explanation(msg, "This upgrade can only be added to a federation ship.");
+            }
+            if (4 > ship.getHull()) {
+                return new Explanation(msg, "This upgrade can only be added to ship with a hull of 4 or greater.");
+            }
+        }
         if ("OnlyDominionHV4".equals(upgradeSpecial)) {
             if (!ship.isDominion()) {
                 return new Explanation(msg, "This upgrade can only be added to a federation ship.");
@@ -804,6 +1051,29 @@ public class EquippedShip extends EquippedShipBase {
 
             if (!ship.getShipClass().equals("D'deridex Class")) {
                 return new Explanation(msg, "This upgrade can only be added to a D'deridex class ship.");
+            }
+        }
+        if ("OnlyIntrepidAndNoMoreThanOnePerShip".equals(upgradeSpecial)) {
+            if (!ship.getShipClass().equals("Intrepid Class")) {
+                return new Explanation(msg, "This upgrade can only be added to an Intrepid class ship.");
+            }
+        }
+        if ("Hull4NoRearPlus5NonFed".equals(upgradeSpecial)) {
+            if (ship.getShipClassDetails().hasRearFiringArc()) {
+                return new Explanation(msg, "This upgrade can only be added to a ship without a rear firing arc.");
+            }
+            if (ship.getHull() < 4) {
+                return new Explanation(msg, "This upgrade can only be added to a ship with a hull of 4 or greater.");
+            }
+        }
+        if ("PlusFiveNotKlingonAndMustHaveComeAbout".equals(upgradeSpecial)) {
+            if (!ship.getShipClassDetails().getMovesSummary().contains("come about")) {
+                return new Explanation(msg, "This upgrade can only be added to a ship with a come about maneuver.");
+            }
+        }
+        if ("MustHaveBS".equals(upgradeSpecial)) {
+            if (ship.getBattleStations() == 0) {
+                return new Explanation(msg, "This upgrade can only be added to a ship with a battle stations ship action.");
             }
         }
         Captain captain = getCaptain();
@@ -827,8 +1097,18 @@ public class EquippedShip extends EquippedShipBase {
                                 "This upgrade can only be added to a Klingon Captain on a Klingon Ship.");
                     }
                 }
+                if (upgradeSpecial.equals("OnlyKlingonORRomulanCaptainShip")) {
+                    if (!captain.isKlingon() && !captain.isRomulan()) {
+                        return new Explanation(msg,
+                                "This upgrade can only be added to a Klingon or Romulan Captain on a Klingon or Romulan Ship.");
+                    }
+                    if (!ship.isKlingon() && !ship.isRomulan()) {
+                        return new Explanation(msg,
+                                "This upgrade can only be added to a Klingon or Romulan Captain on a Klingon or Romulan Ship.");
+                    }
+                }
 
-                if (upgradeSpecial.equals("OnlySpecies8472Ship")) {
+                if (upgradeSpecial.equals("OnlySpecies8472Ship") || upgradeSpecial.endsWith("OnlySpecies8472Ship")) {
                     if (!ship.isSpecies8472()) {
                         return new Explanation(msg,
                                 "This upgrade can only be added to Species 8472 ships.");
@@ -861,6 +1141,24 @@ public class EquippedShip extends EquippedShipBase {
                     return new Explanation(msg,
                             "This talent may only be equiped by Shinzon.");
                 }
+                if (captain.getExternalId().equals("k_temoc_72009") && upgrade.isTalent()) {
+                    if (!upgrade.isKlingon()) {
+                        return new Explanation(msg,
+                                "K'Temoc may only field Klingon [TALENT] upgrades.");
+                    }
+                }
+                if (upgradeSpecial.equals("OnlyKazonCaptainShip")) {
+                    if (!captain.isKazon() || !ship.isKazon()) {
+                        return new Explanation(msg,
+                                "This upgrade can only be added to a Kazon Captain on a Kazon Ship.");
+                    }
+                }
+                if (upgradeSpecial.equals("OnlyVulcanCaptainVulcanShip")) {
+                    if (!captain.isVulcan() || !ship.isVulcan()) {
+                        return new Explanation(msg,
+                                "This upgrade can only be added to a Vulcan Captain on a Vulcan Ship.");
+                    }
+                }
             }
 
             if (upgradeSpecial.equals("OnlyTholianCaptain")) {
@@ -877,10 +1175,225 @@ public class EquippedShip extends EquippedShipBase {
                 }
             }
 
-            if ("OnlyRomulanCaptainShip".equals(upgradeSpecial)) {
+            if ("OnlyRomulanCaptainShip".equals(upgradeSpecial)){
                 if (!captain.isRomulan() || !ship.isRomulan()){
                     return new Explanation(msg,
                             "This upgrade can only be added to a Romulan captain on a Romulan Ship.");
+                }
+            }
+
+            if ("OnlyRomulanCaptain".equals(upgradeSpecial)){
+                if (!captain.isRomulan()){
+                    return new Explanation(msg,
+                            "This upgrade can only be added to a Romulan captain.");
+                }
+            }
+
+            if ("OnlyFederationCaptainShip".equals(upgradeSpecial)) {
+                if (!captain.isFederation() || !ship.isFederation()) {
+                    return new Explanation(msg,
+                            "This upgrade can only be added to a Federation captain on a Federation Ship.");
+                }
+            }
+
+            if (upgradeSpecial.equals("OnlyXindi") || upgradeSpecial.endsWith("OnlyXindi") || upgradeSpecial.startsWith("OnlyXindi")) {
+                if (!ship.isXindi()) {
+                    return new Explanation(msg,
+                            "This upgrade can only be added to Xindi ships.");
+                }
+            }
+
+            if (upgradeSpecial.equals("OnlyXindiCaptainShip")) {
+                if (!ship.isXindi() || !captain.isXindi()) {
+                    return new Explanation(msg,
+                            "This upgrade can only be added to a Xindi ship with a Xindi Captain.");
+                }
+            }
+            if (upgradeSpecial.equals("OnlyLBCaptain")) {
+                if (!captain.getTitle().equals("Lursa") && !captain.getTitle().equals("B'Etor")) {
+                    if (upgrade.getTitle().equals("Lursa")) {
+                        return new Explanation(msg,
+                                "B'Etor must be the captain when assigning Lursa as Crew.");
+                    } else {
+                        return new Explanation(msg,
+                                "Lursa must be the captain when assigning B'Etor as Crew.");
+                    }
+                }
+            }
+            if (upgrade.isTalent() && !upgrade.isPlaceholder()) {
+                if (getCaptain() != null && getCaptain().getExternalId().equals("brunt_72013")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.getTitle().equals("Grand Nagus")) {
+                            return new Explanation(msg,
+                                    "Brunt may only field the Grand Nagus [TALENT] Upgrade");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 1 && containsUpgradeWithName("Grand Nagus") == null) {
+                            if (addingNew && !upgrade.getTitle().equals("Grand Nagus")) {
+                                return new Explanation(msg,
+                                        "Brunt may only field the Grand Nagus [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getExternalId().equals("lovok_72221a")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.getTitle().equals("Tal Shiar")) {
+                            return new Explanation(msg,
+                                    "Lovok may only field the Tal Shiar [TALENT] Upgrade");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 1 && containsUpgradeWithName("Tal Shiar") == null) {
+                            if (addingNew && !upgrade.getTitle().equals("Tal Shiar")) {
+                                return new Explanation(msg,
+                                        "Lovok may only field the Tal Shiar [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getExternalId().equals("telek_r_mor_72016")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.getTitle().equals("Secret Research")) {
+                            return new Explanation(msg,
+                                    "Telek R'Mor may only field the Secret Research [TALENT] Upgrade");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 1 && containsUpgradeWithName("Secret Research") == null) {
+                            if (addingNew && !upgrade.getTitle().equals("Secret Research")) {
+                                return new Explanation(msg,
+                                        "Telek R'Mor may only field the Secret Research [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getSpecial().equals("OnlyKlingonTalent")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.isKlingon()) {
+                            return new Explanation(msg,
+                                    "This Captain may only field 1 Klingon [TALENT] Upgrade");
+                        }
+                    } else {
+                        boolean hasKT = false;
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                                if (eu.getUpgrade().isKlingon()) {
+                                    hasKT = true;
+                                }
+                            }
+                        }
+                        if (limit <= 1 && !hasKT) {
+                            if (addingNew && !upgrade.isKlingon()) {
+                                return new Explanation(msg,
+                                        "This Captain may only field 1 Klingon [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getSpecial().equals("OneRomulanTalentDiscIfFleetHasRomulan")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.isRomulan()) {
+                            return new Explanation(msg,
+                                    getCaptain().getTitle() + " may only field a Romulan [TALENT] Upgrade");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 1 && !upgrade.isRomulan()) {
+                            if (addingNew && !upgrade.isRomulan()) {
+                                return new Explanation(msg,
+                                        getCaptain().getTitle() + " may only field a Romulan [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getSpecial().equals("TwoBajoranTalents")) {
+                    int limit = getTalent();
+                    if (limit == 2) {
+                        if (!upgrade.isBajoran()) {
+                            return new Explanation(msg,
+                                    getCaptain().getTitle() + " may only field the Bajoran [TALENT] Upgrades");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 2) {
+                            if (addingNew && !upgrade.isBajoran()) {
+                                return new Explanation(msg,
+                                        getCaptain().getTitle() + " may only field the Bajoran [TALENT] Upgrades");
+                            }
+                        }
+                    }
+                }
+                if (getCaptain() != null && getCaptain().getExternalId().equals("kurn_71999p")) {
+                    int limit = getTalent();
+                    if (limit == 1) {
+                        if (!upgrade.getTitle().equals("Mauk-to'Vor")) {
+                            return new Explanation(msg,
+                                    "Kurn may only field the Mauk-to'Vor [TALENT] Upgrade");
+                        }
+                    } else {
+                        for (EquippedUpgrade eu : mUpgrades) {
+                            if (!eu.isPlaceholder() && eu.getUpgrade().isTalent()) {
+                                limit--;
+                            }
+                        }
+                        if (limit <= 1 && containsUpgradeWithName("Mauk-to'Vor") == null) {
+                            if (addingNew && !upgrade.getTitle().equals("Mauk-to'Vor")) {
+                                return new Explanation(msg,
+                                        "Kurn may only field the Mauk-to'Vor [TALENT] Upgrade");
+                            }
+                        }
+                    }
+                }
+                if (upgradeSpecial.equals("OnlyBorgQueen") && getCaptain() != null && !getCaptain().getTitle().equals("Borg Queen")) {
+                    return new Explanation(msg,
+                            "This upgrade may only be assinged to the Borg Queen");
+                }
+            }
+        }
+
+        if (!upgrade.isPlaceholder() && upgrade.isWeapon() && this.containsUpgradeWithSpecial("addoneweaponslotfortorpedoes") != null) {
+            int limit = getWeapon() - 1;
+            for (EquippedUpgrade eu : mUpgrades) {
+                if (!eu.isPlaceholder() && eu.getUpgrade().isWeapon()) {
+                    if (!eu.getTitle().startsWith("Photon Torpedoes"))
+                        limit--;
+                }
+            }
+
+            if (!upgrade.getTitle().startsWith("Photon Torpedoes")) {
+                if (!addingNew) {
+                    limit++;
+                }
+                if (limit < 1) {
+                    return new Explanation(msg, "You may only equip a Photon Torpedoes upgrade in this slot.");
                 }
             }
         }
@@ -891,12 +1404,66 @@ public class EquippedShip extends EquippedShipBase {
                     "Cannot equip a Borg upgrade with cost greater than 5 to this ship.");
         }
 
+        if ("systems_upgrade_71998p".equals(upgrade.getExternalId())
+                || "systems_upgrade_c_71998p".equals(upgrade.getExternalId())
+                || "systems_upgrade_w_71998p".equals(upgrade.getExternalId())) {
+            if (addingNew) {
+                if (null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_71998p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_c_71998p"))
+                        || null != containsUpgrade(Universe.getUniverse().getUpgrade("systems_upgrade_w_71998p"))) {
+                    return new Explanation(msg, "This upgrade can only be added once per ship.");
+                }
+            }
+        }
         if (null != containsUpgrade(Universe.getUniverse().getUpgrade("romulan_hijackers_71802"))) {
             if (upgrade.isCrew()) {
                 if (!upgrade.isRomulan()) {
                     return new Explanation(msg,"You may only deploy Romulan Crew Upgrades while this ship is equipped with the Romulan Hijackers Upgrade");
                 }
             }
+        }
+
+        if (ship.isShuttle() && upgrade.isWeapon() && !upgrade.getExternalId().equals("3007")) {
+            EquippedUpgrade tmpEu = new EquippedUpgrade();
+            tmpEu.setUpgrade(upgrade);
+            if (ship.getShipClass().equals("Delta Flyer Class Shuttlecraft")) {
+                if (upgrade.calculateCostForShip(this,tmpEu) > 4) {
+                    return new Explanation(msg, "You cannot deploy a [WEAPON] Upgrade with a cost greater than 4 to a Delta Flyer Class Shuttlecraft.");
+                }
+            } else {
+                if (upgrade.calculateCostForShip(this, tmpEu) > 3) {
+                    return new Explanation(msg, "You cannot deploy a [WEAPON] Upgrade with a cost greater than 3 to a shuttlecraft.");
+                }
+            }
+        }
+
+        if (upgrade.isTech() && null != containsUpgradeWithSpecial("Add3FedTech4Less")) {
+            int tech = 0;
+            for(EquippedUpgrade eu : mUpgrades) {
+                if (eu.getUpgrade().isTech() && !eu.isPlaceholder()) {
+                    if (eu.getSpecialTag() == null || !eu.getSpecialTag().startsWith("fed3_tech_")) {
+                        tech++;
+                    }
+                }
+            }
+            EquippedUpgrade tmpEu = new EquippedUpgrade();
+            tmpEu.setUpgrade(upgrade);
+            if (!upgrade.isFederation() || upgrade.calculateCostForShip(this,tmpEu) > 4) {
+                int artificialLimit = getTech() - tech - 3;
+                if (!addingNew) {
+                    artificialLimit ++;
+                }
+                if (artificialLimit <= 0) {
+                    return new Explanation(msg,"You can only deploy Federation [TECH] Upgrades costing 4 or less to " + containsUpgradeWithSpecial("Add3FedTech4Less").getTitle() + ".");
+                }
+            }
+        }
+
+        if (upgradeSpecial.equals("BSVT") && this.getSquad().containsUniqueUpgradeWithName("Borg Support Vehicle Dock") == null) {
+            return new Explanation(msg,"The Borg Support Vehicle Token may only be applied when a ship in your fleet is equipped with the Borg Support Vehicle Dock upgrade.");
+        }
+        if (upgradeSpecial.equals("BSVT") && this.getHull() > 7) {
+            return new Explanation(msg,"The Borg Support Vehicle Token may only be applied when a ship with a Hull Value of 7 or less.");
         }
 
         int limit = upgrade.limitForShip(this);
@@ -913,6 +1480,7 @@ public class EquippedShip extends EquippedShipBase {
             }
             return new Explanation(msg, expl);
         }
+
         return Explanation.SUCCESS;
     }
 
@@ -942,7 +1510,7 @@ public class EquippedShip extends EquippedShipBase {
         int crewCount = crewUpgrades.size();
         ArrayList<EquippedUpgrade> officerUpgrades = allUpgradesOfType(Constants.OFFICER_TYPE);
         int limit = getOfficerLimit();
-        if (officerUpgrades.size() >= limit) {
+        if (officerUpgrades.size() > limit) {
             String msg = String.format("Can't add %s to the selected squadron.", officer.getTitle());
             String info = null;
             if (crewCount > 0) {
@@ -967,6 +1535,15 @@ public class EquippedShip extends EquippedShipBase {
     public EquippedUpgrade containsUpgradeWithName(String theName) {
         for (EquippedUpgrade eu : mUpgrades) {
             if (eu.getUpgrade().getTitle().equals(theName)) {
+                return eu;
+            }
+        }
+        return null;
+    }
+
+    public EquippedUpgrade containsUpgradeWithSpecial(String theName) {
+        for (EquippedUpgrade eu : mUpgrades) {
+            if (eu.getUpgrade().getSpecial().equals(theName)) {
                 return eu;
             }
         }
@@ -1009,6 +1586,12 @@ public class EquippedShip extends EquippedShipBase {
         }
     }
 
+    public void removeOfficers() {
+        ArrayList <EquippedUpgrade> officers = allUpgradesOfType(Constants.OFFICER_TYPE);
+        for (EquippedUpgrade eu : officers) {
+            removeUpgrade(eu);
+        }
+    }
     public String getFlagshipFaction() {
         Flagship flagship = getFlagship();
         if (flagship == null) {
@@ -1115,12 +1698,13 @@ public class EquippedShip extends EquippedShipBase {
     public static final int SLOT_TYPE_ADMIRAL = 7;
     public static final int SLOT_TYPE_FLEET_CAPTAIN = 8;
     public static final int SLOT_TYPE_SQUADRON = 9;
+    public static final int SLOT_TYPE_OFFICER = 10;
     public static final int SLOT_TYPE_SHIP = 1000;
 
     public static Class[] CLASS_FOR_SLOT = new Class[]{
             Captain.class,
             Crew.class, Weapon.class, Tech.class, Borg.class, Talent.class,
-            Flagship.class, Admiral.class, FleetCaptain.class, Squadron.class
+            Flagship.class, Admiral.class, FleetCaptain.class, Squadron.class, Officer.class
     };
 
     private int getUpgradeIndexOfClass(Class slotClass, int slotIndex) {
@@ -1166,7 +1750,18 @@ public class EquippedShip extends EquippedShipBase {
         if (!explanation.canAdd) {
             return explanation; // disallowed, abort!
         }
+        if (this.getExternalId().equals("enterprise_nx_01_71526") && !ship.getExternalId().equals("enterprise_nx_01_71526")) {
+            EquippedUpgrade hullPlating = containsUpgrade(Universe.getUniverse().getUpgrade("enhanced_hull_plating_71526"));
+            if (hullPlating != null) {
+                removeUpgrade(hullPlating);
+            }
+        }
         setShip(ship);
+
+        if (ship.getExternalId().equals("enterprise_nx_01_71526")) {
+            Upgrade hullPlating = Universe.getUniverse().getUpgrade("enhanced_hull_plating_71526");
+            addUpgrade(hullPlating, null, false);
+        }
 
         // TODO: consider swapping zero cost captain for new faction?
         removeIllegalUpgrades();
@@ -1237,6 +1832,17 @@ public class EquippedShip extends EquippedShipBase {
                     return explanation; // disallowed, abort!
                 }
                 upgrade = fleetCaptain;
+            } else if (SLOT_TYPE_OFFICER == slotType) {
+                Officer officer = Universe.getUniverse().getOfficer(externalId);
+                Explanation explanation = squad.canAddUpgrade(officer, this);
+                if (!explanation.canAdd) {
+                    return explanation; // disallowed, abort!
+                }
+                explanation = canAddOfficer(officer);
+                if (!explanation.canAdd) {
+                    return explanation;
+                }
+                upgrade = officer;
             } else {
                 upgrade = SLOT_TYPE_ADMIRAL == slotType ? Universe
                         .getUniverse().getAdmiral(externalId) : Universe
@@ -1259,11 +1865,153 @@ public class EquippedShip extends EquippedShipBase {
         if (oldEuIndex >= 0) {
             // swap out old upgrade
             EquippedUpgrade oldUpgrade = mUpgrades.get(oldEuIndex);
+            if (oldUpgrade != null && !oldUpgrade.isPlaceholder() && oldUpgrade.getExternalId().equals("gareb_71536")) {
+                String result = String.format(
+                        "Can't add %s to the selected squadron",
+                        newEu.getTitle());
+                return new Explanation(result, "This ship may only be assigned Gareb or a Romulan Drone Pilot as its Captain.");
+            }
             oldUpgrade.setEquippedShip(null);
             mUpgrades.set(oldEuIndex, newEu);
         } else {
             mUpgrades.add(newEu);
         }
+
+        if (getCaptain() != null && getCaptain().getExternalId().equals("gareb_71536") && newEu.isCaptain()) {
+            if (!newEu.getExternalId().equals("gareb_71536")) {
+                EquippedUpgrade gareb = getEquippedCaptain();
+
+                int cost = newEu.getUpgrade().calculateCostForShip(this,newEu) - 3;
+                if (cost < 0) {
+                    cost = 0;
+                }
+                gareb.setOverridden(true);
+                gareb.setOverriddenCost(cost);
+                newEu.setOverridden(true);
+                newEu.setOverriddenCost(0);
+            }
+        }
+
+        if (upgrade.isTech() && null != containsUpgradeWithSpecial("Add3FedTech4Less")) {
+            if (upgrade.isFederation() && upgrade.calculateCostForShip(this, newEu) <= 4) {
+                int tech = 0;
+                for (EquippedUpgrade eu : mUpgrades) {
+                    if (eu.getUpgrade().isTech() && !eu.isPlaceholder() && eu.getSpecialTag() != null && eu.getSpecialTag().startsWith("fed3_tech_")) {
+                        tech++;
+                    }
+                }
+                if (tech < 3) {
+                    newEu.setOverridden(true);
+                    newEu.setOverriddenCost(0);
+                    newEu.setSpecialTag("fed3_tech_" + Integer.toString(tech + 1));
+                }
+            }
+        }
+
+        if (upgrade.isWeapon() && !upgrade.getExternalId().equals("triphasic_emitter_71536") && null != containsUpgrade(Universe.getUniverse().getUpgrade("triphasic_emitter_71536"))) {
+            if (upgrade.calculateCostForShip(this, newEu) <= 5) {
+                int totalTE = 0;
+                int totalHidden = 0;
+                for (EquippedUpgrade eu : mUpgrades) {
+                    if (eu.getUpgrade().isWeapon() && !eu.isPlaceholder() && eu.getSpecialTag() != null && eu.getSpecialTag().equals("HiddenWeaponTE")) {
+                        totalHidden++;
+                    } else if (eu.getUpgrade().getExternalId().equals("triphasic_emitter_71536")) {
+                        totalTE++;
+                    }
+                }
+
+                if (totalHidden < totalTE) {
+                    newEu.setOverridden(true);
+                    newEu.setOverriddenCost(0);
+                    newEu.setSpecialTag("HiddenWeaponTE");
+                }
+            }
+        }
+
+        if (upgrade.isTech() && null != containsUpgradeWithSpecial("AddOneTechMinus1")) {
+            if (upgrade.isRomulan()) {
+                int tech = 0;
+                for (EquippedUpgrade eu : mUpgrades) {
+                    if (eu.getUpgrade().isTech() && !eu.isPlaceholder() && eu.getSpecialTag() != null && eu.getSpecialTag().startsWith("nijil_tech_")) {
+                        tech++;
+                    }
+                }
+                if (tech < 1) {
+                    int cost = upgrade.calculateCostForShip(this, newEu);
+                    if (cost > 1) {
+                        newEu.setOverridden(true);
+                        newEu.setOverriddenCost(cost - 1);
+                    }
+                    newEu.setSpecialTag("nijil_tech_" + Integer.toString(tech + 1));
+                }
+            }
+        }
+
+        if (upgrade.isTalent() && upgrade.isRomulan() && getCaptain() != null && getCaptain().getSpecial().equals("OneRomulanTalentDiscIfFleetHasRomulan")) {
+            boolean discApplied = false;
+
+            for (EquippedUpgrade eu : this.mUpgrades) {
+                if (eu.getSpecialTag() != null && eu.getSpecialTag().equals("DiscRomTalent")) {
+                    discApplied = true;
+                }
+            }
+            if (!discApplied) {
+                ArrayList<EquippedShip> ships = getSquad().getEquippedShips();
+                boolean rom = false;
+                for (EquippedShip ship : ships) {
+                    if (ship != this) {
+                        if (ship.getShip().isRomulan()) {
+                            rom = true;
+                        }
+                    }
+                }
+                if (rom) {
+                    int cost = newEu.getUpgrade().calculateCostForShip(this,newEu) - 1;
+                    newEu.setOverridden(true);
+                    newEu.setOverriddenCost(cost);
+                    newEu.setSpecialTag("DiscRomTalent");
+                }
+            }
+        }
+
+        if (!newEu.isPlaceholder() && getCaptain() != null && getCaptain().getExternalId().equals("khan_singh_72317p")) {
+            int cost = newEu.getUpgrade().calculateCostForShip(this,newEu);
+            int count = 0;
+            for(EquippedUpgrade eu : mUpgrades) {
+                if (!eu.isPlaceholder()) {
+                    if (eu.getSpecialTag() != null && eu.getSpecialTag().equals("KhanDiscounted")) {
+                        count++;
+                    }
+                }
+            }
+            if (!newEu.isCaptain() && !newEu.getUpgrade().isAdmiral() && cost <= 6 && count < 3) {
+                System.out.println("Discounted.");
+                newEu.setSpecialTag("KhanDiscounted");
+                newEu.setOverridden(true);
+                newEu.setOverriddenCost(4);
+            }
+        }
+
+        if (!newEu.isPlaceholder() && newEu.getUpgrade().isWeapon() && containsUpgradeWithSpecial("addoneweaponslot1xindi2less") != null) {
+            int thisCost = newEu.getCost();
+            int xindiDisc = 0;
+            for(EquippedUpgrade eu : mUpgrades) {
+                if (eu.getUpgrade().isTech() && !eu.isPlaceholder()) {
+                    if (eu.getSpecialTag() == null || !eu.getSpecialTag().equals("xindixtraweapon")) {
+                        xindiDisc++;
+                    }
+                }
+            }
+            if (xindiDisc == 0) {
+                newEu.setSpecialTag("xindixtraweapon");
+                if (thisCost <= 2) {
+                    newEu.setOverriddenCost(0);
+                } else {
+                    newEu.setOverriddenCost(thisCost - 2);
+                }
+            }
+        }
+
         newEu.setEquippedShip(this);
         // slot counts may have changed, refresh placeholders + prune slots to
         // new count
@@ -1317,7 +2065,8 @@ public class EquippedShip extends EquippedShipBase {
     public JSONObject asJSON() throws JSONException {
         JSONObject o = new JSONObject();
         Ship ship = getShip();
-        if (ship == null) {
+
+        if (isResourceSideboard()) {
             o.put(JSONLabels.JSON_LABEL_SIDEBOARD, true);
         } else {
             o.put(JSONLabels.JSON_LABEL_SHIP_ID, ship.getExternalId());
@@ -1327,16 +2076,20 @@ public class EquippedShip extends EquippedShipBase {
                 o.put(JSONLabels.JSON_LABEL_FLAGSHIP, flagship.getExternalId());
             }
         }
+
         final EquippedUpgrade equippedCaptain = getEquippedCaptain();
         if (null != equippedCaptain) {
             o.put(JSONLabels.JSON_LABEL_CAPTAIN, equippedCaptain.asJSON());
         }
+
         ArrayList<EquippedUpgrade> sortedUpgrades = getSortedUpgrades();
         JSONArray upgrades = new JSONArray();
         int index = 0;
         for (EquippedUpgrade upgrade : sortedUpgrades) {
-            if (!upgrade.isPlaceholder() && !upgrade.isCaptain()) {
-                upgrades.put(index++, upgrade.asJSON());
+            if (!upgrade.isPlaceholder()) {
+                if (null == equippedCaptain || !upgrade.isEqualToUpgrade(equippedCaptain.getUpgrade())) {
+                    upgrades.put(index++, upgrade.asJSON());
+                }
             }
         }
         o.put(JSONLabels.JSON_LABEL_UPGRADES, upgrades);
@@ -1351,7 +2104,11 @@ public class EquippedShip extends EquippedShipBase {
             String captainId = captainObject
                     .optString(JSONLabels.JSON_LABEL_UPGRADE_ID);
             Captain captain = universe.getCaptain(captainId);
-            addUpgrade(captain, null, false);
+            EquippedUpgrade eu = addUpgrade(captain, null, false);
+            if (captainObject.optBoolean(JSONLabels.JSON_LABEL_COST_IS_OVERRIDDEN)) {
+                eu.setOverridden(true);
+                eu.setOverriddenCost(captainObject.optInt(JSONLabels.JSON_LABEL_OVERRIDDEN_COST));
+            }
         }
 
         String flagshipId = shipData.optString(JSONLabels.JSON_LABEL_FLAGSHIP);
@@ -1380,6 +2137,9 @@ public class EquippedShip extends EquippedShipBase {
                         eu.setOverriddenCost(upgradeData
                                 .optInt(JSONLabels.JSON_LABEL_OVERRIDDEN_COST));
                     }
+                    if (upgradeData.optString(JSONLabels.JSON_LABEL_SPECIALTAG) != null) {
+                        eu.setSpecialTag(upgradeData.optString(JSONLabels.JSON_LABEL_SPECIALTAG));
+                    }
                 } else if (strict) {
                     throw new RuntimeException("Can't find upgrade '" + upgradeId
                             + "'");
@@ -1394,4 +2154,7 @@ public class EquippedShip extends EquippedShipBase {
         return mShip != null && mShip.isFighterSquadron();
     }
 
+    public String getExternalId() {
+        return getShipExternalId();
+    }
 }

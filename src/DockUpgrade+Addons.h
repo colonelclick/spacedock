@@ -15,11 +15,13 @@
 -(BOOL)isTech;
 -(BOOL)isWeapon;
 -(BOOL)isBorg;
+-(BOOL)isQMark;
 -(BOOL)isCaptain;
 -(BOOL)isAdmiral;
 -(BOOL)isFleetCaptain;
 -(BOOL)isOfficer;
 -(BOOL)isSquadron;
+-(BOOL)isResourceUpgrade;
 -(BOOL)isPlaceholder;
 -(BOOL)isUnique;
 -(BOOL)isMirrorUniverseUnique;
@@ -33,6 +35,7 @@
 -(BOOL)isFactionBorg;
 -(BOOL)isRomulan;
 -(BOOL)isQContinuum;
+-(BOOL)isXindi;
 -(BOOL)isRestrictedOnlyByFaction;
 -(NSComparisonResult)compareTo:(DockUpgrade*)other;
 -(int)limitForShip:(DockEquippedShip*)targetShip;

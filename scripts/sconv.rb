@@ -24,10 +24,11 @@ end
 def process_maneuvers(moves, maneuver_string, color)
   unless maneuver_string == nil
     maneuver_string = maneuver_string.downcase.gsub("forward", "straight")
+    maneuver_string = maneuver_string.downcase.gsub("come about", "about")
     maneuvers = maneuver_string.split(/\s*,\s*/)
     maneuvers.each do |one_move|
       speed, kind = one_move.split(/\s+/)
-      if kind == "straight" || kind == "flank" || kind == "stop"
+      if kind == "straight" || kind == "flank" || kind == "stop" || kind == "about"
         moves.push({:color => color, :speed => speed.to_i, :kind => kind, :column => 2})
       elsif kind == "rotate"
         moves.push({:color => color, :speed => 0, :kind => speed + "-" + kind, :column => 2})
@@ -44,14 +45,16 @@ end
 
 # Timestamp	Uniqueness	Ship Name	Faction	Ship Class	Attack	Agility	Hull	Shield	Ability	Action Bar	Cost	Borg Upgrade Slots	Crew Upgrade Slots	Tech Upgrade Slots	Weapon Upgrade Slots	Expansion Pack	Maneuver Grid	Firing Arcs	Build/Price Adjustment	Green Maneuvers	White Maneuvers	Red Maneuvers										
 ship = <<-SHIPTEXT
-7/18/2015 18:51:11	72009 - IKS T'Ong	Unique	I.K.S. T'Ong	Klingon	K'Tinga Class	K'Tinga Class				4	1	4	3	When attacking a ship with your Primary Weapon that has a larger Hull value and/or Primary Weapon value than your ship, gain +1 attack die.	Cloak, Evasive, Sensor Echo, Target Lock	24	0	1	1	2	90-degree forward, 90-degree rear		0
-7/19/2015 16:56:38	72001 - USS Bellerophon	Unique	U.S.S. Bellerophon	Federation	Intrepid Class	Intrepid Class				4	2	4	5	When defending, during the Compare Results step, you may disable 2 of your Active Shields to cancel 1 of the attacking ship's [HIT] results.	Battle Stations, Evasive, Scan, Target Lock	30	0	2	1	2	90-degree forward, 90-degree rear		0
-7/25/2015 14:18:06	72010 - IRW Vrax	Unique	I.R.W. Vrax	Romulan	Valdore Class	Valdore Class				4	2	6	3	If you reveal a 4 [FORWARD] maneuver, immediately before you move, you may change it to a 4 Bank maneuver.  Treat this as a Red Maneuver.	Cloak, Evasive, Sensor Echo, Target Lock	30	0	2	0	2	90-degree forward		0
-7/30/2015 13:01:22	72001 - USS Bellerophon	Non-unique	Federation Starship	Federation	Intrepid Class	Intrepid Class				4	2	4	4		Battle Stations, Evasive, Scan, Target Lock	28	0	1	1	2	90-degree forward, 90-degree rear		0
-7/30/2015 13:05:18	72010 - IRW Vrax	Non-unique	Romulan Starship	Romulan	Valdore Class	Valdore Class				4	2	6	2		Cloak, Evasive, Sensor Echo, Target Lock	28	0	2	0	1	90-degree forward		0
-7/30/2015 13:05:57	72009 - IKS T'Ong	Non-unique	Klingon Starship	Klingon	K'Tinga Class	K'Tinga Class				4	1	4	2		Cloak, Evasive, Sensor Echo, Target Lock	22	0	1	1	1	90-degree forward, 90-degree rear		0
-7/30/2015 14:43:56	72008 - USS Thunderchild	Unique	U.S.S. Thunderchild	Federation	Akira Class		1 Bank, 1 Forward, 2 Forward	2 Turn, 2 Bank, 3 Bank, 3 Forward, 4 Forward	3 Turn, 3 Come About	4	2	5	3	Each time you defend, if you take no damage from an attack, you may immediately roll 1 attack die. A [HIT] or [CRIT] result damages the attacking ship.	Battle Stations, Evasive, Scan, Target Lock	28	0	1	0	3	90-degree forward		0
-7/30/2015 14:44:34	72008 - USS Thunderchild	Non-unique	Federation Starship	Federation	Akira Class	Akira Class				4	2	5	2		Battle Stations, Evasive, Scan, Target Lock	26	0	1	0	2	90-degree forward		0
+11/9/2017 13:54:03	72945 - Romulan Faction Pack	Unique	I.R.W. Suran	Romulan	Valdore Class	Valdore Class				4	2	6	3	COMBAT PHASE: After this ship attacks:  This ship may perform a 2 [GREEN BANK LEFT] or a 2 [GREEN BANK RIGHT] Maneuver.	Cloak, Evasive, Sensor Echo, Target Lock	28	0	2	1	1	90-degree forward		0
+11/10/2017 12:47:09	72944 - Federation vs. Klingons Starter Set	Unique	U.S.S. Enterprise-D	Federation	Galaxy Class	Galaxy Class				4	1	5	4	WHEN DEFENDING:  The attacking ship rolls -1 attack die.	Battle Stations, Evasive, Scan, Target Lock	26	0	3	1	1	90-degree forward, 90-degree rear		0
+11/10/2017 12:49:02	72946 - Dominion Faction Pack	Unique	3rd Division Battle Cruiser	Dominion	Jem'Hadar Battle Cruiser	Jem'Hadar Battle Cruiser				5	1	6	5	Jem'Hadar Attack Ships within Range 1 roll +1 defense dice.	Battle Stations, Evasive, Scan, Target Lock	33	0	2	2	1	90-degree forward		0
+11/11/2017 12:28:48	72944 - Federation vs. Klingons Starter Set	Unique	K'Mpec's Attack Cruiser	Klingon	Vor'Cha Class	Vor'Cha Class				5	1	5	3	ACTION: Target all Cloaked friendly ships within Range 1-2.  Place a [BATTLE STATIONS] Token beside all target ships.	Cloak, Evasive, Sensor Echo, Target Lock	25	0	2	1	1	90-degree forward		0
+11/16/2017 12:14:50	72945 - Romulan Faction Pack	Unique	Jarok's Scout Vessel	Romulan	Romulan Scout Vessel	Romulan Scout Vessel				1	3	2	2	ACTIVATION PHASE: Place 2 [TIME] Tokens on this card and target a friendly [ROMULAN] ship within Range 1.  The target ship may perform an Action as a Free Action.	Cloak, Evasive, Scan, Sensor Echo	12	0	1	1	1	90-degree forward		0
+11/16/2017 16:33:25	72946 - Dominion Faction Pack	Unique	2nd Wing Patrol Ship	Dominion	Jem'Hadar Attack Ship	Jem'Hadar Attack Ship				3	2	3	3	This ship rolls +2 defense dice if there is another Jem'Hadar Attack Ship within Range 1.	Battle Stations, Evasive, Scan, Target Lock	16	0	2	1	1	90-degree forward		0
+11/21/2017 14:47:16	72945 - Romulan Faction Pack	Non-unique	Romulan Starship	Romulan	Valdore Class	Valdore Class				4	2	6	2		Cloak, Evasive, Sensor Echo, Target Lock	24	0	2	0	1	90-degree forward		0
+11/21/2017 14:48:31	72946 - Dominion Faction Pack	Non-unique	Dominion Starship	Dominion	Jem'Hadar Battle Cruiser	Jem'Hadar Battle Cruiser				5	1	6	4		Battle Stations, Evasive, Scan, Target Lock	29	0	1	1	2	90-degree forward		0
+11/21/2017 14:50:41	72945 - Romulan Faction Pack	Unique	Mirok's Science Vessel	Romulan	Romulan Science Vessel	Romulan Science Vessel				1	2	2	2	ACTION: Target a friendly ship within Range 1-2.  Repair 1 Shield or 1 Hull on the target ship.	Cloak, Evasive, Scan, Sensor Echo	10	0	1	1	0	90-degree forward		0
+11/21/2017 14:51:38	72944 - Federation vs. Klingons Starter Set	Unique	U.S.S. Sutherland	Federation	Nebula Class	Nebula Class				4	1	4	4	WHEN DEFENDING:  Cancel 1 [HIT].	Battle Stations, Evasive, Scan, Target Lock	23	0	3	1	1	90-degree forward		0
 SHIPTEXT
 
 

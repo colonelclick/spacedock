@@ -6,9 +6,11 @@
 //  Copyright (c) 2015 Robert George. All rights reserved.
 //
 
+#import "DockEquippedShip+MacAddons.h"
 #import "DockResource+MacAddons.h"
 #import "DockResource+Addons.h"
 #import "DockSet+Addons.h"
+#import "DockSquad+Addons.h"
 
 extern NSString* kMarkExpiredResources;
 
@@ -34,8 +36,17 @@ extern NSString* kMarkExpiredResources;
         NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retired)"];
         [exp addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,[exp length])];
         [title appendAttributedString:exp];
+    } else if (ageComponents.month == 17) {
+        NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retiring)"];
+        [exp addAttribute:NSForegroundColorAttributeName value:[NSColor orangeColor] range:NSMakeRange(0,[exp length])];
+        [title appendAttributedString:exp];
     }
     
     return title;
+}
+-(NSNumber*)costForSquad
+{
+    DockSquad* squad = [DockEquippedShip currentTargetShip].squad;
+    return [self costForSquad:squad];
 }
 @end

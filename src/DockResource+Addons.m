@@ -79,6 +79,12 @@ NSString* kOfficerCardsExternalId = @"officer_cards_collectiveop3";
         DockFlagship* flagship = [thisSquad flagship];
         return flagship != nil;
     }
+    if ([self.externalId isEqualToString:@"front-line_retrofit_72941r"]) {
+        return [thisSquad containsUniqueUpgradeWithName:self.title];
+    }
+    if ([self.externalId isEqualToString:@"captains_chair_72936r"]) {
+        return [thisSquad containsUniqueUpgradeWithName:self.title];
+    }
     return [self isSideboard] || [self isFighterSquadron] || [self isOfficerCards];
 }
 
@@ -130,6 +136,36 @@ NSString* kOfficerCardsExternalId = @"officer_cards_collectiveop3";
         float cost = (float)shields/2.0f;
 
         return [NSNumber numberWithInt:ceil(cost)];
+    } else if ([self.externalId isEqualToString:@"main_power_grid_72005r"]) {
+            int hull = 0;
+            for (DockEquippedShip* ship in squad.equippedShips) {
+                if (ship.hull > 3) {
+                    hull ++;
+                }
+            }
+            float cost = 3.0f + ((float)hull*2.0f);
+            
+            return [NSNumber numberWithInt:ceil(cost)];
+    } else if ([self.externalId isEqualToString:@"improved_hull_72319r"]) {
+        int hull = 0;
+        for (DockEquippedShip* ship in squad.equippedShips) {
+            hull += ship.hull;
+        }
+        float cost = (float)hull/2.0f;
+        
+        return [NSNumber numberWithInt:ceil(cost)];
+    } else if ([self.externalId isEqualToString:@"captains_chair_72936r"]) {
+        if ([squad containsUniqueUpgradeWithName:@"Captain's Chair"] != nil) {
+            return 0;
+        } else {
+            return self.cost;
+        }
+    } else if ([self.externalId isEqualToString:@"front-line_retrofit_72941r"]) {
+        if ([squad containsUniqueUpgradeWithName:@"Front-Line Retrofit"] != nil) {
+            return 0;
+        } else {
+            return self.cost;
+        }
     } else {
         return self.cost;
     }

@@ -1,94 +1,54 @@
   <Captain>
-    <Title>K'Temoc</Title>
-    <Ability>All of your Klingon Upgrades cost -1 SP. The faction penalty is doubled for any non-Klingon Upgrades assigned to your ship. K'Temoc may only field Klingon [ELITE TALENT] Upgrades.</Ability>
+    <Title>Alidar Jarok</Title>
+    <Ability>ACTIVATION PHASE: After an opposing ship moves but before its Perform Action Step, target that ship and place 2 [TIME] Tokens on this card. Choose an Action on the target ship's Action Bar other than [REGENERATE]. The target ship must perform the chosen Action during its Perform Action Step.</Ability>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>5</Skill>
+    <Skill>6</Skill>
     <Talent>1</Talent>
     <Attack></Attack>
     <Range></Range>
     <Type>Captain</Type>
-    <Faction>Klingon</Faction>
-    <Cost>3</Cost>
-    <Id>k_temoc_72009</Id>
-    <Set>72009</Set>
-    <Special>Yes</Special>
+    <Faction>Romulan</Faction>
+    <Cost>5</Cost>
+    <Id>alidar_jarok_72945</Id>
+    <Set>72945</Set>
+    <Special></Special>
   </Captain>
   <Captain>
-    <Title>Morag</Title>
-    <Ability>ACTION: If your ship is not Cloaked, disable all of your remaining Shields and target a ship at Range 1-2 that is not Cloaked and has no Active Shields. Disable 1 Upgrade of your choice on the target ship and place an Auxiliary Power Token beside your ship.</Ability>
+    <Title>Deyos</Title>
+    <Ability>ACTION: Target a friendly ship. Equip a [CREW] Upgrade that was discarded from the target ship to the target ship. The target ship cannot attack this game round.</Ability>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>3</Skill>
+    <Skill>6</Skill>
     <Talent>0</Talent>
     <Attack></Attack>
     <Range></Range>
     <Type>Captain</Type>
-    <Faction>Klingon</Faction>
-    <Cost>2</Cost>
-    <Id>morag_72009</Id>
-    <Set>72009</Set>
+    <Faction>Dominion</Faction>
+    <Cost>4</Cost>
+    <Id>deyos_72946</Id>
+    <Set>72946</Set>
     <Special></Special>
   </Captain>
   <Captain>
-    <Title>Suran</Title>
-    <Ability>ACTION: When attacking this round, during the Roll Attack Dice step, if you are within range 1 of a friendly ship, set 1 of your attack dice on the result of your choice. This die cannot be rolled or re-rolled.</Ability>
+    <Title>Tomalak</Title>
+    <Ability>Add 1 [TECH] to this ship's Upgrade Bar. WHEN ATTACKING: This ship may re-roll 1 attack die for each [TECH] Upgrade equipped to it.</Ability>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>6</Skill>
+    <Skill>8</Skill>
     <Talent>1</Talent>
     <Attack></Attack>
     <Range></Range>
     <Type>Captain</Type>
     <Faction>Romulan</Faction>
-    <Cost>4</Cost>
-    <Id>suran_72010</Id>
-    <Set>72010</Set>
-    <Special></Special>
+    <Cost>5</Cost>
+    <Id>tomalak_72945</Id>
+    <Set>72945</Set>
+    <Special>addonetechslot</Special>
   </Captain>
   <Captain>
-    <Title>William Ross</Title>
-    <Ability>ACTION: Target a ship within Range 1-2 that is in your forward firing arc. If the target ship attacks this round, that ship rolls 1 less attack die this round.</Ability>
-    <Unique>Y</Unique>
-    <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>6</Skill>
-    <Talent>1</Talent>
-    <Attack></Attack>
-    <Range></Range>
-    <Type>Captain</Type>
-    <Faction>Federation</Faction>
-    <Cost>4</Cost>
-    <Id>william_ross_cap_72001</Id>
-    <Set>72001</Set>
-    <Special></Special>
-    <AdmiralAbility>FLEET ACTION: Target a ship within Range 1-2 that is in your forward firing arc. If the target ship attacks this round, that ship rolls 1 less attack die this round.</AdmiralAbility>
-    <AdmiralCost>4</AdmiralCost>
-    <AdmiralTalent>1</AdmiralTalent>
-    <SkillModifier>2</SkillModifier>
-  </Captain>
-  <Captain>
-    <Title>Velal</Title>
-    <Ability>ACTION: Each time you defend this round, during the Roll Defense Dice step, you may choose to roll 2 less defense dice. If you do so, add 1 [EVADE] result to your roll.</Ability>
-    <Unique>Y</Unique>
-    <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>5</Skill>
-    <Talent>1</Talent>
-    <Attack></Attack>
-    <Range></Range>
-    <Type>Captain</Type>
-    <Faction>Romulan</Faction>
-    <Cost>3</Cost>
-    <Id>velal_cap_72010</Id>
-    <Set>72010</Set>
-    <Special></Special>
-    <AdmiralAbility>FLEET ACTION: Each time you defend this round, during the Roll Defense Dice step, you may choose to roll 2 less defense dice. If you do so, add 1 [EVADE] result to your roll.</AdmiralAbility>
-    <AdmiralCost>3</AdmiralCost>
-    <AdmiralTalent>1</AdmiralTalent>
-    <SkillModifier>1</SkillModifier>
-  </Captain>
-  <Captain>
-    <Title>Shanthi</Title>
-    <Ability>ACTION: Target a ship at Range 1-2. When attacking that ship this round, you may re-roll all of your blank results once. In addition, if the target ship is Cloaked, immediately flip that ship's [CLOAK] Token over to its red side.</Ability>
+    <Title>Kilana</Title>
+    <Ability>WHEN A [TECH] UPGRADE EQUIPPED TO THIS SHIP WOULD BE DISABLED: You may place 2 [TIME] Tokens on it instead.</Ability>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
     <Skill>4</Skill>
@@ -96,33 +56,25 @@
     <Attack></Attack>
     <Range></Range>
     <Type>Captain</Type>
-    <Faction>Federation</Faction>
+    <Faction>Dominion</Faction>
     <Cost>2</Cost>
-    <Id>shanthi_cap_72008</Id>
-    <Set>72008</Set>
+    <Id>kilana_72946</Id>
+    <Set>72946</Set>
     <Special></Special>
-    <AdmiralAbility>FLEET ACTION: Target a ship at Range 1-2. When attacking that ship this round, you may re-roll all of your blank results once. In addition, if the target ship is Cloaked, immediately flip that ship's [CLOAK] Token over to its red side.</AdmiralAbility>
-    <AdmiralCost>2</AdmiralCost>
-    <AdmiralTalent>1</AdmiralTalent>
-    <SkillModifier>1</SkillModifier>
   </Captain>
   <Captain>
-    <Title>Hayes</Title>
-    <Ability>ACTION: All friendly ships within Range 1 of your ship gain +1 attack die this round (+2 attack dice against Borg ships).</Ability>
+    <Title>Jean-Luc Picard</Title>
+    <Ability>ACTION: Place 2 [TIME] Tokens on this card and target all friendly ships. Place a [BATTLESTATIONS] Token beside this ship and all target ships.</Ability>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <Skill>5</Skill>
-    <Talent>1</Talent>
+    <Skill>8</Skill>
+    <Talent>2</Talent>
     <Attack></Attack>
     <Range></Range>
     <Type>Captain</Type>
     <Faction>Federation</Faction>
-    <Cost>3</Cost>
-    <Id>hayes_cap_72008</Id>
-    <Set>72008</Set>
+    <Cost>6</Cost>
+    <Id>jean_luc_picard_72944</Id>
+    <Set>72944</Set>
     <Special></Special>
-    <AdmiralAbility>FLEET ACTION: All friendly ships within Range 1 of your ship gain +1 attack die this round (+2 attack dice against Borg ships).</AdmiralAbility>
-    <AdmiralCost>3</AdmiralCost>
-    <AdmiralTalent>1</AdmiralTalent>
-    <SkillModifier>1</SkillModifier>
   </Captain>

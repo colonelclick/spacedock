@@ -2,6 +2,7 @@
 
 #import "DockMovesViewController.h"
 #import "DockShip+Addons.h"
+#import "DockSetItem+Addons.h"
 
 @interface DockShipDetailViewController ()
 @property (nonatomic, assign) CGFloat labelWidth;
@@ -61,6 +62,18 @@
     UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier: @"ability"];
     cell.textLabel.text = @"Ability";
     cell.detailTextLabel.text = _ship.ability;
+    cell.detailTextLabel.numberOfLines = 0;
+    return cell;
+}
+
+-(UITableViewCell*)cellForSet:(UITableView*)tableView
+{
+    UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier: @"ability"];
+    cell.textLabel.text = @"Set";
+    if ([_ship.setName rangeOfString:@","].location != NSNotFound) {
+        cell.textLabel.text = @"Sets";
+    }
+    cell.detailTextLabel.text = _ship.setName;
     cell.detailTextLabel.numberOfLines = 0;
     return cell;
 }
@@ -205,7 +218,7 @@ enum {
         return [self cellFor360Arc: tableView];
 
     case kShipDetailSet:
-        return [self cell: tableView forKey: @"setName" label: @"Set"];
+        return [self cellForSet:tableView];
 
     case kShipDetailMoves:
         return [self cell: tableView forKey: @"movesSummary" label: @"Key Moves" accessory: UITableViewCellAccessoryDetailButton];
@@ -222,16 +235,29 @@ enum {
     CGFloat rowHeight = tableView.rowHeight;
     NSInteger lastRowIndex = [self rowCount] - 1;
     NSInteger row = [indexPath indexAtPosition: 1];
-
+    NSInteger setRowIndex = 19;
+    
     if (row == lastRowIndex) {
         NSString* str = _ship.ability;
 
         if (str.length > 0) {
-            CGSize size = [str sizeWithFont: [UIFont systemFontOfSize: 14] constrainedToSize: CGSizeMake(_labelWidth - 40, 999) lineBreakMode: NSLineBreakByWordWrapping];
-            return size.height + rowHeight / 2;
+            CGSize size = [str boundingRectWithSize:CGSizeMake(_labelWidth - 5, 9999) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize: 14]} context:nil].size;
+            CGFloat rowHeight = size.height + 20;
+            return rowHeight;
         }
+
     }
 
+    if (row == setRowIndex) {
+        NSString* str = _ship.setName;
+        
+        if (str.length > 0) {
+            CGSize size = [str boundingRectWithSize:CGSizeMake(_labelWidth - 5, 9999) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize: 14]} context:nil].size;
+            CGFloat rowHeight = size.height + 20;
+            return rowHeight;
+        }
+    }
+    
     return rowHeight;
 }
 

@@ -1,5 +1,7 @@
 package com.funnyhatsoftware.spacedock.data;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +23,7 @@ public class Squad extends SquadBase {
     public static final String JSON_LABEL_SIDEBOARD = "sideboard";
     public static final String JSON_LABEL_SHIPS = "ships";
     public static final String JSON_LABEL_RESOURCE = "resource";
+    public static final String JSON_LABEL_RESOURCE_ATTRIBUTES = "resourceAttributes";
     public static final String JSON_LABEL_UUID = "uuid";
     public static final String JSON_LABEL_ADDITIONAL_POINTS = "additionalPoints";
     public static final String JSON_LABEL_NAME = "name";
@@ -136,15 +139,24 @@ public class Squad extends SquadBase {
                     .toString()));
         }
         String resourceId = jsonObject.optString(JSON_LABEL_RESOURCE, "");
+        String resourceAttribs = jsonObject.optString(JSON_LABEL_RESOURCE_ATTRIBUTES, "");
         if (resourceId.length() > 0) {
             Resource resource = universe.resources.get(resourceId);
             if (strict && resource == null) {
                 throw new RuntimeException("Can't find resource " + resourceId);
             }
+            if (resourceAttribs.length() > 0) {
+                setResourceAttributes(resourceAttribs);
+            }
             setResource(resource);
         }
 
         JSONArray ships = jsonObject.getJSONArray(JSON_LABEL_SHIPS);
+
+        boolean hasRomulanShip = false;
+        EquippedShip shipWithTebok = null;
+        JSONObject shipWithTebokData = null;
+
         for (int i = 0; i < ships.length(); ++i) {
             JSONObject shipData = ships.getJSONObject(i);
             boolean shipIsSideboard = shipData.optBoolean(JSON_LABEL_SIDEBOARD);
@@ -161,9 +173,46 @@ public class Squad extends SquadBase {
                 }
             }
             if (currentShip != null && !currentShip.isFighterSquadron()) {
-                currentShip.importUpgrades(universe, shipData, strict);
-                if (!shipIsSideboard) {
-                    addEquippedShip(currentShip);
+                if (!hasRomulanShip) {
+                    JSONObject captainObject = shipData
+                            .optJSONObject(JSONLabels.JSON_LABEL_CAPTAIN);
+                    if (captainObject != null && !shipIsSideboard) {
+                        String captainId = captainObject
+                                .optString(JSONLabels.JSON_LABEL_UPGRADE_ID);
+                        Captain captain = universe.getCaptain(captainId);
+                        if (!captain.getSpecial().equals("OneRomulanTalentDiscIfFleetHasRomulan")) {
+                            if (currentShip.getShip().isRomulan()) {
+                                hasRomulanShip = true;
+                            }
+                        } else {
+                            shipWithTebok = currentShip;
+                            shipWithTebokData = shipData;
+                        }
+                    }
+                }
+                if (shipWithTebok != null && shipWithTebok == currentShip && i < (ships.length() - 1)) {
+                    if (hasRomulanShip) {
+                        addEquippedShip(shipWithTebok);
+                        shipWithTebok.importUpgrades(universe, shipWithTebokData, strict);
+                        shipWithTebok = null;
+                        shipWithTebokData = null;
+                    }
+                } else {
+                    if (!shipIsSideboard) {
+                        addEquippedShip(currentShip);
+                    }
+                    currentShip.importUpgrades(universe, shipData, strict);
+                }
+                if (shipWithTebok != null && shipWithTebok != currentShip) {
+                    if (hasRomulanShip) {
+                        addEquippedShip(shipWithTebok);
+                        shipWithTebok.importUpgrades(universe, shipWithTebokData, strict);
+                        shipWithTebok = null;
+                        shipWithTebokData = null;
+                    } else if (i == (ships.length() - 1)) {
+                        addEquippedShip(shipWithTebok);
+                        shipWithTebok.importUpgrades(universe, shipWithTebokData, strict);
+                    }
                 }
             }
         }
@@ -186,6 +235,10 @@ public class Squad extends SquadBase {
         Resource resource = getResource();
         if (resource != null) {
             o.put(JSON_LABEL_RESOURCE, resource.getExternalId());
+            String resourceAttributes = getResourceAttributes();
+            if (resourceAttributes != null) {
+                o.put(JSON_LABEL_RESOURCE_ATTRIBUTES,resourceAttributes);
+            }
         }
         ArrayList<EquippedShip> equippedShips = getEquippedShips();
         JSONArray shipsArray = new JSONArray();
@@ -261,7 +314,8 @@ public class Squad extends SquadBase {
         if (resource != null && !resource.equippedIntoSquad(this)) {
             // flagship cost taken into account when assigned to EquippedShip
             // Fighters appear as ships
-            cost += resource.getCost();
+            //cost += resource.getCost();
+            cost += resource.getCostForSquad(this);
         }
 
         cost += getAdditionalPoints();
@@ -400,6 +454,27 @@ public class Squad extends SquadBase {
                     return new Explanation(result, "You may only deploy a Romulan captain while this ship is equipped with the Romulan Hijackers Upgrade.");
                 }
             }
+            if (targetShip.getShip().getShipClass().equals("Romulan Drone Ship")) {
+                if (targetShip.getCaptain() != null && !targetShip.getCaptain().getExternalId().equals("gareb_71536")) {
+                    if (!captain.getExternalId().equals("gareb_71536") && !captain.getExternalId().equals("romulan_drone_pilot_71536")) {
+                        return new Explanation(result, "This ship may only be assigned Gareb or a Romulan Drone Pilot as its Captain.");
+                    }
+                }
+            } else if (captain.getExternalId().equals("gareb_71536")) {
+                return new Explanation(result,"Gareb may only be purchased for a Romulan Drone Ship.");
+            } else if (captain.getExternalId().equals("romulan_drone_pilot_71536")) {
+                return new Explanation(result,"Romulan Drone Pilot may only be purchased for a Romulan Drone Ship.");
+            }
+            if ("OnlyFerengiShip".equals(captain.getSpecial())) {
+                if (!targetShip.getShip().isFerengi()) {
+                    return new Explanation(result, "You may only deploy this Captain to a Ferengi ship.");
+                }
+            }
+            if ("OnlySpecies8472Ship".equals(captain.getSpecial())) {
+                if (!targetShip.getShip().isSpecies8472()) {
+                    return new Explanation(result, "You may only deploy this Captain to a Species 8472 ship.");
+                }
+            }
         }
 
         if (captain.getMirrorUniverseUnique()) {
@@ -436,6 +511,11 @@ public class Squad extends SquadBase {
         if ("not_with_hugh".equalsIgnoreCase(upgrade.getSpecial()) && null != containsUpgradeWithName("Hugh")) {
             return new Explanation(result, "This Upgrade cannot be added to a squadron that contains Hugh");
         }
+        if ("OnlyFerengiShip".equals(upgrade.getSpecial())) {
+            if (!targetShip.getShip().isFerengi()) {
+                return new Explanation(result, "You may only deploy this " + upgrade.getUpType() + " to a Ferengi ship.");
+            }
+        }
 
         if (upgrade.getMirrorUniverseUnique()) {
             EquippedUpgrade existing = containsMirrorUniverseUniqueUpgradeWithName(upgrade
@@ -463,6 +543,8 @@ public class Squad extends SquadBase {
                     removeFleetCaptain();
                 } else if (oldResource.getIsFighterSquadron()) {
                     removeFighterSquadron();
+                } else if (oldResource.isOfficers()) {
+                    removeOfficers();
                 }
             }
 
@@ -488,6 +570,12 @@ public class Squad extends SquadBase {
     void removeFleetCaptain() {
         for (EquippedShip ship : mEquippedShips) {
             ship.removeFleetCaptain();
+        }
+    }
+
+    void removeOfficers() {
+        for (EquippedShip ship : mEquippedShips) {
+            ship.removeOfficers();
         }
     }
 

@@ -1,7 +1,7 @@
 #import "DockResourcesViewController.h"
 
 #import "DockDetailViewController.h"
-#import "DockResource.h"
+#import "DockResource+Addons.h"
 #import "DockSet+Addons.h"
 
 NSString* kMarkExpiredResKey = @"markExpiredRes";
@@ -103,22 +103,30 @@ NSString* kMarkExpiredResKey = @"markExpiredRes";
         cell.accessoryType = UITableViewCellAccessoryNone;
     } else {
         DockResource* resource = resources[row];
-        cell.textLabel.text = [resource title];
-        cell.detailTextLabel.text = [resource.cost stringValue];
+        cell.textLabel.text = [[resource title] stringByAppendingString:@"      "];
+        cell.textLabel.adjustsFontSizeToFitWidth = YES;
+        cell.detailTextLabel.text = [[resource costForSquad:_targetSquad] stringValue];
+        cell.accessoryType = UITableViewCellAccessoryDetailDisclosureButton;
         if (_markExpiredRes) {
             DockSet* set = [resource.sets anyObject];
             NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-            NSDateComponents *components = [cal components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:set.releaseDate];
+            NSDateComponents *components = [cal components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:set.releaseDate];
             [components setDay:1];
             
             NSDateComponents *ageComponents = [[NSCalendar currentCalendar]
-                                               components:NSMonthCalendarUnit
+                                               components:NSCalendarUnitMonth
                                                fromDate:[cal dateFromComponents:components]
                                                toDate:[NSDate date] options:0];
             if (ageComponents.month >= 18) {
-                NSMutableAttributedString* as = cell.textLabel.attributedText.mutableCopy;
-                NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retired)"];
+                NSMutableAttributedString* as = [[NSMutableAttributedString alloc] initWithString:[resource title]];
+                NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retired)      "];
                 [exp addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(0,[exp length])];
+                [as appendAttributedString:exp];
+                cell.textLabel.attributedText = as;
+            } else if (ageComponents.month == 17) {
+                NSMutableAttributedString* as = [[NSMutableAttributedString alloc] initWithString:[resource title]];
+                NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retiring)      "];
+                [exp addAttribute:NSForegroundColorAttributeName value:[UIColor orangeColor] range:NSMakeRange(0,[exp length])];
                 [as appendAttributedString:exp];
                 cell.textLabel.attributedText = as;
             }

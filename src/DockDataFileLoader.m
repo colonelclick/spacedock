@@ -21,6 +21,7 @@
 #import "DockSquad+Addons.h"
 #import "DockSquad.h"
 #import "DockSquadronUpgrade.h"
+#import "DockResourceUpgrade.h"
 #import "DockTalent.h"
 #import "DockTech.h"
 #import "DockUpgrade+Addons.h"
@@ -617,6 +618,55 @@ static NSString* makeKey(NSString* key)
         @"Plus3NotKlingonAndNoMoreThanOnePerShip",
         @"OnlyIntrepidAndNoMoreThanOnePerShip",
         @"Plus2NotRomulanAndNoMoreThanOnePerShip",
+        @"OnlyGrandNagusTalent",
+        @"Hull4NoRearPlus5NonFed",
+        @"AddTwoWeaponSlotsAndNoMoreThanOnePerShip",
+        @"no_faction_penalty_on_vulcan",
+        @"limited_max_weapon_3AndPlus5NonFed",
+        @"Plus5NotDominionAndNoMoreThanOnePerShip",
+        @"Plus5NotKlingon",
+        @"Plus5NotXindi",
+        @"OnlyTalShiarTalent",
+        @"OnlyBajoranFederation",
+        @"Plus4NotVulcan",
+        @"OnlyKazonCaptainShip",
+        @"Plus5NotFederationNoMoreThanOnePerShip",
+        @"Plus3NotFederationNoMoreThanOnePerShip",
+        @"costincreasedifnotromulansciencevesselAndNoMoreThanOnePerShip",
+        @"OnlySecretResearchTalent",
+        @"KlingonUpgradesCostOneLess",
+        @"OnlyXindi",
+        @"Add3FedTech4Less",
+        @"Plus5NotKazonNoMoreThanOnePerShip",
+        @"NoPenaltyOnTalent",
+        @"OneRomulanTalentDiscIfFleetHasRomulan",
+        @"OnlyBajoranCaptainShip",
+        @"TwoBajoranTalents",
+        @"RemanBodyguardsLess2",
+        @"PlusFiveNotKlingonAndMustHaveComeAbout",
+        @"AddOneTechMinus1",
+        @"MustHaveBS",
+        @"OPSPlusFiveNotRomulan",
+        @"OnlyKlingonTalent",
+        @"BSVT",
+        @"OnlyBorgQueen",
+        @"addoneweaponslotfortorpedoes",
+        @"FedCrewUpgradesCostOneLess",
+        @"KuvahMagh2Less",
+        @"OPSPlus4NotXindi",
+        @"OPSPlus5NotXindi",
+        @"OnlyXindiCaptainShip",
+        @"OnlyKlingonORRomulanCaptainShip",
+        @"OnlyLBCaptain",
+        @"OnlyFedShipHV4CostPWV",
+        @"Ship2LessAndUpgrades1Less",
+        @"addoneweaponslot1xindi2less",
+        @"OnlyXindiANDCostPWV",
+        @"Hull4",
+        @"Hull3",
+        @"OPSHull4",
+        @"OPSHull3",
+        @"CostPWV"
                                ];
     NSMutableSet* unhandledSpecials = [[NSMutableSet alloc] initWithSet: specials];
     [unhandledSpecials minusSet: [NSSet setWithArray: handledSpecials]];
@@ -631,6 +681,18 @@ static NSString* makeKey(NSString* key)
     [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'Plus6NotShip_'"]];
     [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'OnlyShip_'"]];
     [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'NoMoreThanOnePerShip'"]];
+    [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'OPSOnlyShipClass_'"]];
+    [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'OPSPlus5NotShipClass_'"]];
+    [unhandledSpecials filterUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF BEGINSWITH 'OPSPlus3NotShipClass_'"]];
+
+#if TARGET_IPHONE_SIMULATOR
+    if (unhandledSpecials.count > 0) {
+        NSLog(@"Unhandled specials: %@",[unhandledSpecials.allObjects componentsJoinedByString:@", "]);
+    } else {
+        NSLog(@"All specials handled");
+    }
+#endif
+    
     return unhandledSpecials;
 }
 
@@ -661,6 +723,7 @@ static NSString* makeKey(NSString* key)
     [self loadItems: xmlData[@"Upgrades"] itemClass: [DockTech class] entityName: @"Tech" targetType: @"Tech"];
     [self loadItems: xmlData[@"Upgrades"] itemClass: [DockBorg class] entityName: @"Borg" targetType: @"Borg"];
     [self loadItems: xmlData[@"Upgrades"] itemClass: [DockSquadronUpgrade class] entityName: @"Squadron" targetType: @"Squadron"];
+    [self loadItems: xmlData[@"Upgrades"] itemClass: [DockResourceUpgrade class] entityName: @"ResourceUpgrade" targetType: @"Resource"];
     [self loadItems: xmlData[@"Resources"] itemClass: [DockResource class] entityName: @"Resource" targetType: @"Resource"];
     [self loadItems: xmlData[@"Flagships"] itemClass: [DockFlagship class] entityName: @"Flagship" targetType: nil];
     [self loadItems: xmlData[@"FleetCaptains"] itemClass: [DockFleetCaptain class] entityName: @"FleetCaptain" targetType: kFleetCaptainUpgradeType];

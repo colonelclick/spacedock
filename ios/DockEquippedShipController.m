@@ -23,11 +23,13 @@
 #import "DockOfficerRowHandler.h"
 #import "DockShipRowHandler.h"
 #import "DockUpgradeRowHandler.h"
+#import "DockResourceUpgradeRowHandler.h"
 
 #pragma mark - DockEquippedShipController
 
 @interface DockEquippedShipController ()
 @property (strong, nonatomic) NSArray* sections;
+@property (nonatomic, assign) BOOL mark50spShip;
 @end
 
 @implementation DockEquippedShipController
@@ -35,6 +37,8 @@
 -(void)viewDidLoad
 {
     [super viewDidLoad];
+    NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+    _mark50spShip = [defaults boolForKey: @"mark50spShip"];
 }
 
 -(void)createSectionAndRowHandlers
@@ -49,6 +53,7 @@
     DockShipRowHandler* shipRowHandler = [[DockShipRowHandler alloc] init];
     shipRowHandler.controller = self;
     shipRowHandler.equippedShip = _equippedShip;
+    shipRowHandler.mark50spShip = _mark50spShip;
     [currentSection addRowHandler: shipRowHandler];
     [sections addObject: currentSection];
 
@@ -138,7 +143,32 @@
         officerHandler.controller = self;
         [extrasSection addRowHandler: officerHandler];
     }
+    
+    if (![sectionTitles containsObject: @"Resource"] && [_equippedShip.squad.resource.externalId isEqualToString:@"captains_chair_72936r"]) {
 
+        DockResourceUpgradeRowHandler* resourceHandler = [[DockResourceUpgradeRowHandler alloc] init];
+        resourceHandler.equippedShip = _equippedShip;
+        resourceHandler.controller = self;
+
+        if ([_equippedShip.squad.resource.externalId isEqualToString:@"captains_chair_72936r"] && [_equippedShip.squad containsUniqueUpgradeWithName:@"Captain's Chair"] == nil) {
+            
+            resourceHandler.controller = self;
+            [extrasSection addRowHandler:resourceHandler];
+        }
+    }
+    if (![sectionTitles containsObject: @"Resource"] && [_equippedShip.squad.resource.externalId isEqualToString:@"front-line_retrofit_72941r"]) {
+        
+        DockResourceUpgradeRowHandler* resourceHandler = [[DockResourceUpgradeRowHandler alloc] init];
+        resourceHandler.equippedShip = _equippedShip;
+        resourceHandler.controller = self;
+        
+        if ([_equippedShip.squad.resource.externalId isEqualToString:@"front-line_retrofit_72941r"] && [_equippedShip.squad containsUniqueUpgradeWithName:@"Front-Line Retrofit"] == nil) {
+            
+            resourceHandler.controller = self;
+            [extrasSection addRowHandler:resourceHandler];
+        }
+    }
+    
     if (extrasSection.rowHandlerCount > 0) {
         [sections addObject: extrasSection];
     }
@@ -148,6 +178,7 @@
 
 -(void)viewWillAppear:(BOOL)animated
 {
+    [self.equippedShip establishPlaceholders];
     [self createSectionAndRowHandlers];
     [super viewWillAppear: animated];
 }

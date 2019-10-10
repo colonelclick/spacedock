@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.funnyhatsoftware.spacedock.R;
 import com.funnyhatsoftware.spacedock.data.Admiral;
+import com.funnyhatsoftware.spacedock.data.Constants;
 import com.funnyhatsoftware.spacedock.data.EquippedShip;
 import com.funnyhatsoftware.spacedock.data.EquippedUpgrade;
 import com.funnyhatsoftware.spacedock.data.Explanation;
@@ -109,6 +110,19 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
         }
         final boolean fleetCaptainUnassigned = squadHasFleetCaptain && fleetCaptainIndex < 0;
 
+        final boolean squadHasOfficers = null != mSquad.getResource() && mSquad.getResource().isOfficers();
+        int officerCount = 0;
+        if (squadHasOfficers) {
+            for (int i = 0; i < ships.size(); i++) {
+                ArrayList<EquippedUpgrade> officers = ships.get(i).allUpgradesOfType(Constants.OFFICER_TYPE);
+                officerCount += officers.size();
+                if (officerCount >= 4) {
+                    officerCount = 4;
+                    break;
+                }
+            }
+        }
+
         int admiralIndex = -1;
         for (int i = 0; i < ships.size(); i++) {
             Admiral admiral = ships.get(i).getAdmiral();
@@ -123,12 +137,12 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
             EquippedShip s = ships.get(i);
             if (i == flagshipIndex || flagshipUnassigned) {
                 populateLookup(l, 1, R.string.flagship_slot, EquippedShip.SLOT_TYPE_FLAGSHIP);
-            } else if (i == fleetCaptainIndex || fleetCaptainUnassigned) {
+            } else if (i == fleetCaptainIndex || fleetCaptainUnassigned && s.getCaptainLimit() > 0) {
                 populateLookup(l, 1, R.string.fleetcaptain_slot, EquippedShip.SLOT_TYPE_FLEET_CAPTAIN);
             }
-            if (!s.isResourceSideboard()) {
+            if (!s.isResourceSideboard() && !s.isShuttle()) {
                 if (i == admiralIndex || 0 > admiralIndex) {
-                    populateLookup(l, s.getCaptainLimit(), R.string.admiral_slot,
+                    populateLookup(l, s.getAdmiralLimit(), R.string.admiral_slot,
                             EquippedShip.SLOT_TYPE_ADMIRAL);
                 }
             }
@@ -136,6 +150,13 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
                     EquippedShip.SLOT_TYPE_CAPTAIN);
             populateLookup(l, s.getTalent(), R.string.talent_slot, EquippedShip.SLOT_TYPE_TALENT);
             populateLookup(l, s.getCrew(), R.string.crew_slot, EquippedShip.SLOT_TYPE_CREW);
+            if (squadHasOfficers) {
+                int officerLimit = s.getOfficerLimit();
+                ArrayList<EquippedUpgrade> officers = s.allUpgradesOfType(Constants.OFFICER_TYPE);
+                officerCount -= officers.size();
+                officerLimit -= officerCount;
+                populateLookup(l, officerLimit, R.string.officer_slot, EquippedShip.SLOT_TYPE_OFFICER);
+            }
             populateLookup(l, s.getWeapon(), R.string.weapon_slot, EquippedShip.SLOT_TYPE_WEAPON);
             populateLookup(l, s.getTech(), R.string.tech_slot, EquippedShip.SLOT_TYPE_TECH);
             populateLookup(l, s.getBorg(), R.string.borg_slot, EquippedShip.SLOT_TYPE_BORG);
@@ -237,7 +258,7 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
                     } else {
                         EquippedUpgrade upgrade = es.getUpgradeAtSlot(
                                 mListItemLookup.slotType, mListItemLookup.slotNumber);
-                        if (upgrade.getUpgrade().isPlaceholder()) {
+                        if (upgrade == null || upgrade.getUpgrade().isPlaceholder()) {
                             mTitleTextView.setText(R.string.empty_upgrade_slot);
                             mCostTextView.setText(R.string.indicator_not_applicable);
                         } else {
@@ -267,6 +288,10 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
 
     public EquippedUpgrade getEquippedUpgrade(int shipIndex, int slotType, int slotNumber) {
         return getEquippedShip(shipIndex).getUpgradeAtSlot(slotType, slotNumber);
+    }
+
+    public Squad getSquad() {
+        return mSquad;
     }
 
     public EditSquadAdapter(Activity activity, ExpandableListView listView,
@@ -428,7 +453,7 @@ public class EditSquadAdapter extends BaseExpandableListAdapter implements
             currentEquipmentId = (fleetCaptain == null) ? null : fleetCaptain.getExternalId();
         } else {
             EquippedUpgrade equippedUpgrade = getEquippedUpgrade(groupPosition, slotType, slotNumber);
-            currentEquipmentId = equippedUpgrade.getUpgrade().getExternalId();
+            currentEquipmentId = (equippedUpgrade == null) ? null : equippedUpgrade.getUpgrade().getExternalId();
         }
 
         // Make upgrades with faction == ship faction most visible

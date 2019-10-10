@@ -126,12 +126,20 @@ NSString* asDegrees(NSString* textValue)
     
     if ([self.externalId isEqualToString:@"maquis_starship_71528"]) {
         return [NSString stringWithFormat: @"%@ (Rear Arc)", self.shipClass];
-    } else if ([self.externalId isEqualToString:@"1033"] || [self.externalId isEqualToString:@"1043"] || [self.externalId isEqualToString:@"romulan_starship_71278"]) {
+    } else if ([self.externalId isEqualToString:@"1033"] || [self.externalId isEqualToString:@"1043"]) {
         return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
-    } else if ([self.externalId isEqualToString:@"1004"]) {
+    } else if ([self.externalId isEqualToString:@"1004"] || [self.externalId isEqualToString:@"romulan_starship_71278"]) {
         return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
     } else if ([self.externalId isEqualToString:@"romulan_starship_71794"]) {
         return [NSString stringWithFormat:@"%@ (2 Weapons/2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_71280"]) {
+        return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_72001p"]) {
+        return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"1049"]) {
+        return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_72011"]) {
+        return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
     }
 
     return self.title;
@@ -144,20 +152,32 @@ NSString* asDegrees(NSString* textValue)
             return [NSString stringWithFormat:@"%@ (Extra Crew)", self.title];
         } else if ([self.externalId isEqualToString:@"sakharov_71997p"]) {
             return [NSString stringWithFormat:@"%@ (Extra Tech)", self.title];
+        } else if ([self.shipClassDetails.externalId isEqualToString:@"constitution_refit_class"]) {
+            return [NSString stringWithFormat:@"%@ (Refit)", self.title];
         }
         return self.title;
     }
 
     if ([self.externalId isEqualToString:@"maquis_starship_71528"]) {
         return [NSString stringWithFormat: @"%@ (Rear Arc)", self.shipClass];
-    } else if ([self.externalId isEqualToString:@"1033"] || [self.externalId isEqualToString:@"1043"] || [self.externalId isEqualToString:@"romulan_starship_71278"]) {
+    } else if ([self.externalId isEqualToString:@"1033"] || [self.externalId isEqualToString:@"1043"]) {
         return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
-    } else if ([self.externalId isEqualToString:@"1004"]) {
+    } else if ([self.externalId isEqualToString:@"1004"] || [self.externalId isEqualToString:@"romulan_starship_71278"]) {
         return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
     } else if ([self.externalId isEqualToString:@"romulan_starship_71794"]) {
         return [NSString stringWithFormat:@"%@ (2 Weapons/2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_71280"]) {
+        return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_72001p"]) {
+        return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"1049"]) {
+        return [NSString stringWithFormat:@"%@ (2 Crew)", self.shipClass];
+    } else if ([self.externalId isEqualToString:@"federation_starship_72011"]) {
+        return [NSString stringWithFormat:@"%@ (2 Weapons)", self.shipClass];
+    } else if ([self.shipClassDetails.externalId isEqualToString:@"constitution_refit_class"]) {
+        return [NSString stringWithFormat:@"%@ (Refit)", self.shipClass];
     }
-    
+
     return self.shipClass;
 }
 
@@ -223,6 +243,9 @@ NSString* asDegrees(NSString* textValue)
 
 -(BOOL)isFederation
 {
+    if (targetHasFaction(@"Vulcan",self) || targetHasFaction(@"Bajoran",self)) {
+        return YES;
+    }
     return targetHasFaction(@"Federation", self);
 }
 
@@ -249,13 +272,13 @@ NSString* asDegrees(NSString* textValue)
 
 -(BOOL)isShuttle
 {
-    if ([self.externalId isEqualToString: @"sakharov_71997p"]) {
+    if ([self.shipClass isEqualToString: @"Type 7 Shuttlecraft"]) {
         return YES;
     }
-    if ([self.externalId isEqualToString: @"sakharov_c_71997p"]) {
+    if ([self.shipClass isEqualToString: @"Ferengi Shuttle"]) {
         return YES;
     }
-    if ([self.externalId isEqualToString: @"federation_starship_71997p"]) {
+    if ([self.shipClass isEqualToString: @"Delta Flyer Class Shuttlecraft"]) {
         return YES;
     }
     return NO;
@@ -360,6 +383,9 @@ NSString* asDegrees(NSString* textValue)
 
 -(BOOL)isIndependent
 {
+    if (targetHasFaction(@"Ferengi",self) || targetHasFaction(@"Kazon",self) || targetHasFaction(@"Xindi",self)) {
+        return YES;
+    }
     return targetHasFaction(@"Independent", self);
 }
 
@@ -376,6 +402,11 @@ NSString* asDegrees(NSString* textValue)
 -(BOOL)isDominion
 {
     return targetHasFaction(@"Dominion", self);
+}
+
+-(BOOL)isXindi
+{
+    return targetHasFaction(@"Xindi", self);
 }
 
 -(int)techCount

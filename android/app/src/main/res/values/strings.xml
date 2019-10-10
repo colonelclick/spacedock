@@ -15,6 +15,7 @@
     <string name="borg_slot">Borg</string>
     <string name="talent_slot">Talent</string>
     <string name="squadron_slot">Squadron</string>
+    <string name="officer_slot">Officer</string>
 
     <string name="add_ship">Add ship</string>
     <string name="clear_upgrade_slot">Clear upgrade slot</string>
@@ -24,6 +25,8 @@
     <string name="indicator_unique">*</string>
 
     <string name="menu_settings">Settings</string>
+    <string name="menu_update">Check for Data Update</string>
+    <string name="menu_loadupdate">Load Game Data Update</string>
     <string name="menu_create_squad">Create Squad</string>
     <string name="menu_share_all_squads">Share All Squads</string>
     <string name="menu_share_squad">Share Squad</string>
@@ -31,11 +34,16 @@
     <string name="menu_edit_squad">Edit Squad</string>
     <string name="menu_rename_squad">Rename Squad</string>
     <string name="menu_delete_squad">Delete Squad</string>
+    <string name="menu_additional_points">Edit Additional Points</string>
+    <string name="menu_notes">Edit Notes</string>
 
     <string name="dialog_request_squad_name">Squad Name</string>
     <string name="dialog_accept">OK</string>
     <string name="dialog_reject">Cancel</string>
     <string name="dialog_error_empty_squad_name">Squad name must not be empty.</string>
+    <string name="dialog_additional_points">Additional Points</string>
+    <string name="dialog_error_nan">Additional points must be a number.</string>
+    <string name="dialog_notes">Notes</string>
 
     <string name="title_settings">Settings</string>
 
@@ -46,6 +54,8 @@
     <string name="pref_summary_set_selection">Only items from the selected expansions are shown in the app.</string>
     <string name="pref_title_auto_add_new_sets">Auto enable new expansions</string>
     <string name="pref_summary_auto_add_new_sets">On update, newly available expansions will be enabled automatically.</string>
+    <string name="pref_title_check_updates">Check for Game Data Updates on Launch</string>
+    <string name="pref_summary_check_updates">Check online for updated Game Data when launching the app.</string>
 
     <string name="toast_invalid_set_selection">Set selection invalid. You must select at least one set to display.</string>
 
@@ -84,6 +94,8 @@
     <string name="no_resource">No resource</string>
     <string name="save_all_squads_to">Save all squads to:</string>
     <string name="all_squads_spacedocksquads">all_squads_exported.spacedocksquads</string>
+    <string name="save_broken_squads_to">Save corrupt squads to:</string>
+    <string name="broken_spacedocksquads">broken.spacedocksquads</string>
     <string name="menu_printfleet">Print Fleet Build</string>
     <string name="fullname">Name</string>
     <string name="emailaddress">Email</string>

@@ -123,6 +123,8 @@ NSString* kCheckGameDataUpdates = @"checkGameUpdates";
     if ([defaults boolForKey: kExpandSquads]) {
         [_squadDetailController performSelector: @selector(expandAll:) withObject: nil afterDelay: 0];
     }
+    NSTableView* resTable = self.resourcesTableView;
+    [resTable reloadData];
 }
 
 -(void)observeValueForKeyPath:(NSString*)keyPath
@@ -532,10 +534,14 @@ NSString* kCheckGameDataUpdates = @"checkGameUpdates";
         [self.admiralsTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
     } else if ([identifier isEqualToString: @"flagships"]) {
         [self.flagshipsTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
+        NSTableView* resTable = self.resourcesTableView;
+        [resTable reloadData];
     } else if ([identifier isEqualToString: @"resources"]) {
         [self.resourcesTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
     } else if ([identifier isEqualToString: @"ships"]) {
         [self.shipsTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
+        NSTableView* resTable = self.resourcesTableView;
+        [resTable reloadData];
     } else if ([identifier isEqualToString: @"fleetCaptains"]) {
         [self.fleetCaptainsTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
     } else if ([identifier isEqualToString: @"tabOfficers"]) {
@@ -548,6 +554,8 @@ NSString* kCheckGameDataUpdates = @"checkGameUpdates";
     DockEquippedShip* selectedShip = [_squadDetailController selectedEquippedShip];
     DockEquippedUpgrade* maybeUpgrade = [_squadDetailController selectedEquippedUpgrade];
     [self.shipsTabController addSelectedToSquad: [self selectedSquad] ship: selectedShip selectedItem: maybeUpgrade];
+    NSTableView* resTable = self.resourcesTableView;
+    [resTable reloadData];
 }
 
 -(IBAction)addSelectedUpgradeAction:(id)sender
@@ -858,13 +866,15 @@ NSString* kCheckGameDataUpdates = @"checkGameUpdates";
         NSString* info = [NSString stringWithFormat: @"Current data version is %@ and version %@ is available. Would you like to update?", currentVersion, remoteVersion];
         [alert setInformativeText: info];
         [alert setAlertStyle: NSInformationalAlertStyle];
+    
         id completion = ^(NSModalResponse returnCode) {
-            [self updateInfo: downloadData];
+            if (returnCode == NSAlertFirstButtonReturn) {
+                [self updateInfo: downloadData];
+            }
         };
         [alert beginSheetModalForWindow: [self window]
                           completionHandler: completion];
     } else {
-        [alert addButtonWithTitle: @"OK"];
         [alert setMessageText: @"Game Data Up to Date"];
         NSString* info = [NSString stringWithFormat: @"Installed data is version %@ and is the most recent version available.", currentVersion];
         [alert setInformativeText: info];

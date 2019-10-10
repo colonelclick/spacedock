@@ -1,63 +1,5 @@
   <Ship>
-    <Title>I.K.S. T'Ong</Title>
-    <Unique>Y</Unique>
-    <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <ShipClass>K'Tinga Class</ShipClass>
-    <Faction>Klingon</Faction>
-    <AdditionalFaction></AdditionalFaction>
-    <Attack>4</Attack>
-    <Agility>1</Agility>
-    <Hull>4</Hull>
-    <Shield>3</Shield>
-    <Ability>When attacking a ship with your Primary Weapon that has a larger Hull value and/or Primary Weapon value than your ship, gain +1 attack die.</Ability>
-    <Cost>24</Cost>
-    <EvasiveManeuvers>1</EvasiveManeuvers>
-    <TargetLock>1</TargetLock>
-    <Scan>0</Scan>
-    <Battlestations>0</Battlestations>
-    <Cloak>1</Cloak>
-    <SensorEcho>1</SensorEcho>
-    <Regenerate>0</Regenerate>
-    <Borg>0</Borg>
-    <Tech>1</Tech>
-    <Weapon>2</Weapon>
-    <Crew>1</Crew>
-    <SquadronUpgrade>0</SquadronUpgrade>
-    <Has360Arc>N</Has360Arc>
-    <Id>i_k_s_t_ong_72009</Id>
-    <Set>72009</Set>
-  </Ship>
-  <Ship>
-    <Title>U.S.S. Bellerophon</Title>
-    <Unique>Y</Unique>
-    <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <ShipClass>Intrepid Class</ShipClass>
-    <Faction>Federation</Faction>
-    <AdditionalFaction></AdditionalFaction>
-    <Attack>4</Attack>
-    <Agility>2</Agility>
-    <Hull>4</Hull>
-    <Shield>5</Shield>
-    <Ability>When defending, during the Compare Results step, you may disable 2 of your Active Shields to cancel 1 of the attacking ship's [HIT] results.</Ability>
-    <Cost>30</Cost>
-    <EvasiveManeuvers>1</EvasiveManeuvers>
-    <TargetLock>1</TargetLock>
-    <Scan>1</Scan>
-    <Battlestations>1</Battlestations>
-    <Cloak>0</Cloak>
-    <SensorEcho>0</SensorEcho>
-    <Regenerate>0</Regenerate>
-    <Borg>0</Borg>
-    <Tech>1</Tech>
-    <Weapon>2</Weapon>
-    <Crew>2</Crew>
-    <SquadronUpgrade>0</SquadronUpgrade>
-    <Has360Arc>N</Has360Arc>
-    <Id>u_s_s_bellerophon_72001</Id>
-    <Set>72001</Set>
-  </Ship>
-  <Ship>
-    <Title>I.R.W. Vrax</Title>
+    <Title>I.R.W. Suran</Title>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
     <ShipClass>Valdore Class</ShipClass>
@@ -67,8 +9,182 @@
     <Agility>2</Agility>
     <Hull>6</Hull>
     <Shield>3</Shield>
-    <Ability>If you reveal a 4 [STRAIGHT] maneuver, immediately before you move, you may change it to a 4 Bank maneuver.  Treat this as a Red Maneuver.</Ability>
-    <Cost>30</Cost>
+    <Ability>COMBAT PHASE: After this ship attacks:  This ship may perform a 2 [GREEN BANK LEFT] or a 2 [GREEN BANK RIGHT] Maneuver.</Ability>
+    <Cost>28</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>1</TargetLock>
+    <Scan>0</Scan>
+    <Battlestations>0</Battlestations>
+    <Cloak>1</Cloak>
+    <SensorEcho>1</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>2</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>i_r_w_suran_72945</Id>
+    <Set>72945</Set>
+  </Ship>
+  <Ship>
+    <Title>U.S.S. Enterprise-D</Title>
+    <Unique>Y</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Galaxy Class</ShipClass>
+    <Faction>Federation</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>4</Attack>
+    <Agility>1</Agility>
+    <Hull>5</Hull>
+    <Shield>4</Shield>
+    <Ability>WHEN DEFENDING:  The attacking ship rolls -1 attack die.</Ability>
+    <Cost>26</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>1</TargetLock>
+    <Scan>1</Scan>
+    <Battlestations>1</Battlestations>
+    <Cloak>0</Cloak>
+    <SensorEcho>0</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>3</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>u_s_s_enterprise_d_72944</Id>
+    <Set>72944</Set>
+  </Ship>
+  <Ship>
+    <Title>3rd Division Battle Cruiser</Title>
+    <Unique>Y</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Jem'Hadar Battle Cruiser</ShipClass>
+    <Faction>Dominion</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>5</Attack>
+    <Agility>1</Agility>
+    <Hull>6</Hull>
+    <Shield>5</Shield>
+    <Ability>Jem'Hadar Attack Ships within Range 1 roll +1 defense dice.</Ability>
+    <Cost>33</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>1</TargetLock>
+    <Scan>1</Scan>
+    <Battlestations>1</Battlestations>
+    <Cloak>0</Cloak>
+    <SensorEcho>0</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>2</Tech>
+    <Weapon>1</Weapon>
+    <Crew>2</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>3rd_division_battle_cruiser_72946</Id>
+    <Set>72946</Set>
+  </Ship>
+  <Ship>
+    <Title>K'Mpec's Attack Cruiser</Title>
+    <Unique>Y</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Vor'Cha Class</ShipClass>
+    <Faction>Klingon</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>5</Attack>
+    <Agility>1</Agility>
+    <Hull>5</Hull>
+    <Shield>3</Shield>
+    <Ability>ACTION: Target all Cloaked friendly ships within Range 1-2.  Place a [BATTLESTATIONS] Token beside all target ships.</Ability>
+    <Cost>25</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>1</TargetLock>
+    <Scan>0</Scan>
+    <Battlestations>0</Battlestations>
+    <Cloak>1</Cloak>
+    <SensorEcho>1</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>2</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>k_mpec_s_attack_cruiser_72944</Id>
+    <Set>72944</Set>
+  </Ship>
+  <Ship>
+    <Title>Jarok's Scout Vessel</Title>
+    <Unique>Y</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Romulan Scout Vessel</ShipClass>
+    <Faction>Romulan</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>1</Attack>
+    <Agility>3</Agility>
+    <Hull>2</Hull>
+    <Shield>2</Shield>
+    <Ability>ACTIVATION PHASE: Place 2 [TIME] Tokens on this card and target a friendly [ROMULAN] ship within Range 1.  The target ship may perform an Action as a Free Action.</Ability>
+    <Cost>12</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>0</TargetLock>
+    <Scan>1</Scan>
+    <Battlestations>0</Battlestations>
+    <Cloak>1</Cloak>
+    <SensorEcho>1</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>1</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>jarok_s_scout_vessel_72945</Id>
+    <Set>72945</Set>
+  </Ship>
+  <Ship>
+    <Title>2nd Wing Patrol Ship</Title>
+    <Unique>Y</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Jem'Hadar Attack Ship</ShipClass>
+    <Faction>Dominion</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>3</Attack>
+    <Agility>2</Agility>
+    <Hull>3</Hull>
+    <Shield>3</Shield>
+    <Ability>This ship rolls +2 defense dice if there is another Jem'Hadar Attack Ship within Range 1.</Ability>
+    <Cost>16</Cost>
+    <EvasiveManeuvers>1</EvasiveManeuvers>
+    <TargetLock>1</TargetLock>
+    <Scan>1</Scan>
+    <Battlestations>1</Battlestations>
+    <Cloak>0</Cloak>
+    <SensorEcho>0</SensorEcho>
+    <Regenerate>0</Regenerate>
+    <Borg>0</Borg>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>2</Crew>
+    <SquadronUpgrade>0</SquadronUpgrade>
+    <Has360Arc>N</Has360Arc>
+    <Id>2nd_wing_patrol_ship_72946</Id>
+    <Set>72946</Set>
+  </Ship>
+  <Ship>
+    <Title>Romulan Starship</Title>
+    <Unique>N</Unique>
+    <MirrorUniverseUnique>N</MirrorUniverseUnique>
+    <ShipClass>Valdore Class</ShipClass>
+    <Faction>Romulan</Faction>
+    <AdditionalFaction></AdditionalFaction>
+    <Attack>4</Attack>
+    <Agility>2</Agility>
+    <Hull>6</Hull>
+    <Shield>2</Shield>
+    <Ability></Ability>
+    <Cost>24</Cost>
     <EvasiveManeuvers>1</EvasiveManeuvers>
     <TargetLock>1</TargetLock>
     <Scan>0</Scan>
@@ -78,26 +194,26 @@
     <Regenerate>0</Regenerate>
     <Borg>0</Borg>
     <Tech>0</Tech>
-    <Weapon>2</Weapon>
+    <Weapon>1</Weapon>
     <Crew>2</Crew>
     <SquadronUpgrade>0</SquadronUpgrade>
     <Has360Arc>N</Has360Arc>
-    <Id>i_r_w_vrax_72010</Id>
-    <Set>72010</Set>
+    <Id>romulan_starship_72945</Id>
+    <Set>72945</Set>
   </Ship>
   <Ship>
-    <Title>Federation Starship</Title>
+    <Title>Dominion Starship</Title>
     <Unique>N</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <ShipClass>Intrepid Class</ShipClass>
-    <Faction>Federation</Faction>
+    <ShipClass>Jem'Hadar Battle Cruiser</ShipClass>
+    <Faction>Dominion</Faction>
     <AdditionalFaction></AdditionalFaction>
-    <Attack>4</Attack>
-    <Agility>2</Agility>
-    <Hull>4</Hull>
+    <Attack>5</Attack>
+    <Agility>1</Agility>
+    <Hull>6</Hull>
     <Shield>4</Shield>
     <Ability></Ability>
-    <Cost>28</Cost>
+    <Cost>29</Cost>
     <EvasiveManeuvers>1</EvasiveManeuvers>
     <TargetLock>1</TargetLock>
     <Scan>1</Scan>
@@ -111,51 +227,51 @@
     <Crew>1</Crew>
     <SquadronUpgrade>0</SquadronUpgrade>
     <Has360Arc>N</Has360Arc>
-    <Id>federation_starship_72001</Id>
-    <Set>72001</Set>
+    <Id>dominion_starship_72946</Id>
+    <Set>72946</Set>
   </Ship>
   <Ship>
-    <Title>U.S.S. Thunderchild</Title>
+    <Title>Mirok's Science Vessel</Title>
     <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <ShipClass>Akira Class</ShipClass>
-    <Faction>Federation</Faction>
+    <ShipClass>Romulan Science Vessel</ShipClass>
+    <Faction>Romulan</Faction>
     <AdditionalFaction></AdditionalFaction>
-    <Attack>4</Attack>
+    <Attack>1</Attack>
     <Agility>2</Agility>
-    <Hull>5</Hull>
-    <Shield>3</Shield>
-    <Ability>Each time you defend, if you take no damage from an attack, you may immediately roll 1 attack die. A [HIT] or [CRIT] result damages the attacking ship.</Ability>
-    <Cost>28</Cost>
+    <Hull>2</Hull>
+    <Shield>2</Shield>
+    <Ability>ACTION: Target a friendly ship within Range 1-2.  Repair 1 Shield or 1 Hull on the target ship.</Ability>
+    <Cost>10</Cost>
     <EvasiveManeuvers>1</EvasiveManeuvers>
-    <TargetLock>1</TargetLock>
+    <TargetLock>0</TargetLock>
     <Scan>1</Scan>
-    <Battlestations>1</Battlestations>
-    <Cloak>0</Cloak>
-    <SensorEcho>0</SensorEcho>
+    <Battlestations>0</Battlestations>
+    <Cloak>1</Cloak>
+    <SensorEcho>1</SensorEcho>
     <Regenerate>0</Regenerate>
     <Borg>0</Borg>
-    <Tech>0</Tech>
-    <Weapon>3</Weapon>
+    <Tech>1</Tech>
+    <Weapon>0</Weapon>
     <Crew>1</Crew>
     <SquadronUpgrade>0</SquadronUpgrade>
     <Has360Arc>N</Has360Arc>
-    <Id>u_s_s_thunderchild_72008</Id>
-    <Set>72008</Set>
+    <Id>mirok_s_science_vessel_72945</Id>
+    <Set>72945</Set>
   </Ship>
   <Ship>
-    <Title>Federation Starship</Title>
-    <Unique>N</Unique>
+    <Title>U.S.S. Sutherland</Title>
+    <Unique>Y</Unique>
     <MirrorUniverseUnique>N</MirrorUniverseUnique>
-    <ShipClass>Akira Class</ShipClass>
+    <ShipClass>Nebula Class</ShipClass>
     <Faction>Federation</Faction>
     <AdditionalFaction></AdditionalFaction>
     <Attack>4</Attack>
-    <Agility>2</Agility>
-    <Hull>5</Hull>
-    <Shield>2</Shield>
-    <Ability></Ability>
-    <Cost>26</Cost>
+    <Agility>1</Agility>
+    <Hull>4</Hull>
+    <Shield>4</Shield>
+    <Ability>WHEN DEFENDING:  Cancel 1 [HIT].</Ability>
+    <Cost>23</Cost>
     <EvasiveManeuvers>1</EvasiveManeuvers>
     <TargetLock>1</TargetLock>
     <Scan>1</Scan>
@@ -164,11 +280,11 @@
     <SensorEcho>0</SensorEcho>
     <Regenerate>0</Regenerate>
     <Borg>0</Borg>
-    <Tech>0</Tech>
-    <Weapon>2</Weapon>
-    <Crew>1</Crew>
+    <Tech>1</Tech>
+    <Weapon>1</Weapon>
+    <Crew>3</Crew>
     <SquadronUpgrade>0</SquadronUpgrade>
     <Has360Arc>N</Has360Arc>
-    <Id>federation_starship_72008</Id>
-    <Set>72008</Set>
+    <Id>u_s_s_sutherland_72944</Id>
+    <Set>72944</Set>
   </Ship>

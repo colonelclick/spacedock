@@ -39,6 +39,7 @@ enum {
 @property (assign, nonatomic) id oldTarget;
 @property (assign, nonatomic) SEL oldAction;
 @property (nonatomic, strong) NSString* fleetCostHighlight;
+@property (nonatomic, assign) BOOL mark50spShip;
 @property (nonatomic, assign) BOOL markExpiredRes;
 
 @end
@@ -66,8 +67,8 @@ enum {
     }
     NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
     _fleetCostHighlight = [defaults stringForKey: @"fleetCostHighlight"];
+    _mark50spShip = [defaults boolForKey: @"mark50spShip"];
     _markExpiredRes = [defaults boolForKey:kMarkExpiredResKey];
-
 }
 
 -(void)didReceiveMemoryWarning
@@ -94,6 +95,7 @@ enum {
     [super viewWillAppear: animated];
     [self.tableView reloadData];
     [self updateCost];
+    [_squad addObserver: self forKeyPath: @"cost" options: 0 context: 0];
 }
 
 -(void)validatePrinting
@@ -115,7 +117,6 @@ enum {
 -(void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear: animated];
-    [_squad addObserver: self forKeyPath: @"cost" options: 0 context: 0];
     [self validatePrinting];
 }
 
@@ -192,7 +193,13 @@ enum {
             if (![_fleetCostHighlight isEqualToString:@"None"]) {
                 int cost = [_squad cost];
                 
-                if ([_fleetCostHighlight isEqualToString:@"90/120"]) {
+                if ([_fleetCostHighlight isEqualToString:@"90/130"]) {
+                    if ((cost > 90 && cost < 110) || cost > 130) {
+                        cell.detailTextLabel.textColor = [UIColor redColor];
+                    } else {
+                        cell.detailTextLabel.textColor = [UIColor blackColor];
+                    }
+                } else if ([_fleetCostHighlight isEqualToString:@"90/120"]) {
                     if ((cost > 90 && cost < 110) || cost > 120) {
                         cell.detailTextLabel.textColor = [UIColor redColor];
                     } else {
@@ -230,17 +237,23 @@ enum {
                 if (_markExpiredRes) {
                     DockSet* set = [_squad.resource.sets anyObject];
                     NSCalendar *cal = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
-                    NSDateComponents *components = [cal components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit) fromDate:set.releaseDate];
+                    NSDateComponents *components = [cal components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:set.releaseDate];
                     [components setDay:1];
                     
                     NSDateComponents *ageComponents = [[NSCalendar currentCalendar]
-                                                       components:NSMonthCalendarUnit
+                                                       components:NSCalendarUnitMonth
                                                        fromDate:[cal dateFromComponents:components]
                                                        toDate:[NSDate date] options:0];
                     if (ageComponents.month >= 18) {
                         NSMutableAttributedString* as = cell.detailTextLabel.attributedText.mutableCopy;
                         NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retired)"];
                         [exp addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(0,[exp length])];
+                        [as appendAttributedString:exp];
+                        cell.detailTextLabel.attributedText = as;
+                    } else if (ageComponents.month == 17) {
+                        NSMutableAttributedString* as = cell.detailTextLabel.attributedText.mutableCopy;
+                        NSMutableAttributedString* exp = [[NSMutableAttributedString alloc] initWithString:@" (Retiring)"];
+                        [exp addAttribute:NSForegroundColorAttributeName value:[UIColor orangeColor] range:NSMakeRange(0,[exp length])];
                         [as appendAttributedString:exp];
                         cell.detailTextLabel.attributedText = as;
                     }
@@ -313,6 +326,11 @@ enum {
         DockEquippedShipCell* shipCell = (DockEquippedShipCell*)cell;
         DockEquippedShip* es = _squad.equippedShips[row];
         shipCell.cost.text = [NSString stringWithFormat: @"%d", [es cost]];
+        if (_mark50spShip && [es cost] > 50) {
+            shipCell.cost.textColor = [UIColor redColor];
+        } else {
+            shipCell.cost.textColor = [UIColor blackColor];
+        }
         shipCell.details.text = [es upgradesDescription];
         shipCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         NSString* t = es.plainDescription;
@@ -620,6 +638,7 @@ enum {
     [self.tableView reloadData];
 
     if ([resource.externalId isEqualToString:@"officer_exchange_program_71996a"]) {
+        _squad.resourceAttributes = @"";
         [self selectFactionSheet:1];
     }
 }
@@ -634,7 +653,7 @@ enum {
     NSSet* factionsSet = [DockUpgrade allFactions: _squad.managedObjectContext];
     NSArray* factionsArray = [[factionsSet allObjects] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
     for (NSString* faction in factionsArray) {
-        if (![_squad.resourceAttributes containsString:faction]) {
+        if ([_squad.resourceAttributes rangeOfString:faction].location == NSNotFound) {
             [sheet addButtonWithTitle: faction];
         }
     }
@@ -733,6 +752,11 @@ enum {
     } else if ([actionSheet.title isEqualToString:@"Select Faction 2"]) {
         NSString* faction = [actionSheet buttonTitleAtIndex:buttonIndex];
         _squad.resourceAttributes = [_squad.resourceAttributes stringByAppendingFormat:@" & %@",faction];
+        NSError* error;
+        
+        if (!saveItem(_squad,  &error)) {
+            presentError(error);
+        }
         [self.tableView reloadData];
     } else {
         switch (buttonIndex) {
